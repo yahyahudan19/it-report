@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('reporter_id');     // staff/unit yang melapor
             $table->uuid('location_id');     // room_id
             $table->date('report_date');
+            $table->text('issue');
             $table->enum('priority', ['critical', 'high', 'medium', 'low']);
             $table->uuid('received_by');     // staff_id penerima laporan
             $table->boolean('is_assigned')->default(false);

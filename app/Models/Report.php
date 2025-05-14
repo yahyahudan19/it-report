@@ -13,6 +13,7 @@ class Report extends Model
         'reporter_id',
         'location_id',
         'report_date',
+        'issue',
         'priority',
         'received_by',
         'is_assigned',

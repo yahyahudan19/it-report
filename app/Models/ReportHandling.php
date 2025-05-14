@@ -14,7 +14,6 @@ class ReportHandling extends Model
         'staff_id',
         'task_id',
         'category_id',
-        'issue_description',
         'action_taken',
         'room_id',
         'handling_time',

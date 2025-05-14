@@ -17,7 +17,6 @@ return new class extends Migration
             $table->uuid('staff_id');        // penanggung jawab penanganan
             $table->uuid('task_id');         // relasi ke work_tasks
             $table->uuid('category_id');     // relasi ke work_categories
-            $table->text('issue_description');
             $table->text('action_taken');
             $table->uuid('room_id');
             $table->timestamp('handling_time')->nullable();
