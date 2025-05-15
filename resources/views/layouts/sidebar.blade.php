@@ -52,8 +52,8 @@
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-reports')}}"></use>
                       </svg><span>Evaluation</span></a>
                     <ul class="sidebar-submenu">
+                      <li><a href="/assessment">Assessment</a></li>
                       <li><a href="/evaluation">Evaluation</a></li>
-                      <li><a href="/target">Target</a></li>
                     </ul>
                   </li>
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title" href="#">

@@ -18,10 +18,10 @@
           <div class="left-header col-xxl-5 col-xl-6 col-lg-5 col-md-4 col-sm-3 p-0">
             <div class="notification-slider">
               <div class="d-flex h-100"> <img src="{{ asset('dashboard/assets/images/giftools.gif')}}" alt="gif">
-                <h6 class="mb-0 f-w-400"><span class="font-primary">Don't Miss Out! </span><span class="f-light"> Our new update has been released.</span></h6><i class="icon-arrow-top-right f-light"></i>
+                <h6 class="mb-0 f-w-400"><span class="font-primary">Stay Positive! </span><span class="f-light"> Great things are coming your way.</span></h6><i class="icon-smile f-light"></i>
               </div>
               <div class="d-flex h-100"><img src="{{ asset('dashboard/assets/images/giftools.gif')}}" alt="gif">
-                <h6 class="mb-0 f-w-400"><span class="f-light">Something you love is now on sale! </span></h6><a class="ms-1" href="https://1.envato.market/3GVzd" target="_blank">Buy now !</a>
+                <h6 class="mb-0 f-w-400"><span class="f-light">Keep pushing forward, success is near! </span></h6>
               </div>
             </div>
           </div>
@@ -46,50 +46,6 @@
                 </div>
               </li>
              
-              <li class="onhover-dropdown">
-                <div class="notification-box">
-                  <svg>
-                    <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#notification')}}"></use>
-                  </svg><span class="badge rounded-pill badge-success">4 </span>
-                </div>
-                <div class="onhover-show-div notification-dropdown">
-                  <h6 class="f-18 mb-0 dropdown-title">Notifications</h6>
-                  <ul>
-                    <li class="b-l-primary border-4 toast default-show-toast align-items-center text-light border-0 fade show" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                      <div class="d-flex justify-content-between">
-                        <div class="toast-body">
-                          <p>Delivery processing</p>
-                        </div>
-                        <button class="btn-close btn-close-white me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Close"></button>
-                      </div>
-                    </li>
-                    <li class="b-l-success border-4 toast default-show-toast align-items-center text-light border-0 fade show" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                      <div class="d-flex justify-content-between">
-                        <div class="toast-body">
-                          <p>Order Complete</p>
-                        </div>
-                        <button class="btn-close btn-close-white me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Close"></button>
-                      </div>
-                    </li>
-                    <li class="b-l-secondary border-4 toast default-show-toast align-items-center text-light border-0 fade show" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                      <div class="d-flex justify-content-between">
-                        <div class="toast-body">
-                          <p>Tickets Generated</p>
-                        </div>
-                        <button class="btn-close btn-close-white me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Close"></button>
-                      </div>
-                    </li>
-                    <li class="b-l-warning border-4 toast default-show-toast align-items-center text-light border-0 fade show" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
-                      <div class="d-flex justify-content-between">
-                        <div class="toast-body">
-                          <p>Delivery Complete</p>
-                        </div>
-                        <button class="btn-close btn-close-white me-2 m-auto" type="button" data-bs-dismiss="toast" aria-label="Close"></button>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </li>
               <li class="profile-nav onhover-dropdown pe-0 py-0">
                 <div class="d-flex profile-media"><img class="b-r-10" src="{{ asset('dashboard/assets/images/dashboard/profile.png')}}" alt="">
                   <div class="flex-grow-1"><span>{{ auth()->user()->name }}</span>
