@@ -52,32 +52,44 @@
                                   <button class="btn-close py-0" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body dark-modal">
-                                  <form class="row g-3 needs-validation custom-input" novalidate="">
+                                  <form class="row g-3 needs-validation custom-input" novalidate="" method="POST" action="{{ route('assessment.store') }}">
+                                    @csrf
                                     <div class="col-12">
                                       <label class="form-label" for="validationCustom01">Task</label>
-                                      <input class="form-control" id="validationCustom01" type="text" placeholder="ur task" required="">
+                                      <input class="form-control" id="validationCustom01" type="text" placeholder="ur task" required="" name="title">
                                       <div class="invalid-feedback">Please enter your valid </div>
                                       <div class="valid-feedback">
                                         Looks's Good!</div>
                                     </div>
                                     
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                       <label class="form-label" for="validationCustom03">Unit (Satuan)</label>
-                                      <input class="form-control" id="validationCustom03" type="text" placeholder="Activity" required="">
+                                      <input class="form-control" id="validationCustom03" type="text" placeholder="Activity" required="" name="unit" >
                                       <div class="invalid-feedback">Please provide a valid Unit.</div>
                                       <div class="valid-feedback">
-                                        Looks's Good!</div>
+                                      Looks's Good!</div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                      <label class="form-label" for="validationCustomCategory">Category</label>
+                                      <select class="form-select" id="validationCustomCategory" name="category" required>
+                                        <option value="" selected disabled>Select category</option>
+                                        @foreach($categories as $category)
+                                          <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @endforeach
+                                      </select>
+                                      <div class="invalid-feedback">Please select a valid Category.</div>
+                                      <div class="valid-feedback">Looks's Good!</div>
+                                    </div>
+                                    <div class="col-md-4">
                                       <label class="form-label" for="validationCustom05">Quantity</label>
-                                      <input class="form-control" id="validationCustom05" type="text" placeholder="10" required="">
-                                      <div class="invalid-feedback">Please provide a quantity zip.</div>
+                                      <input class="form-control" id="validationCustom05" type="number" min="1" step="1" placeholder="10" required="" name="target_quantity" pattern="\d+">
+                                      <div class="invalid-feedback">Please provide a valid quantity (numbers only).</div>
                                       <div class="valid-feedback">
-                                        Looks's Good!</div>
+                                      Looks's Good!</div>
                                     </div>
                                     <div class="col-12"> 
                                       <label class="form-label" for="validationTextarea">Description</label>
-                                      <textarea class="form-control" id="validationTextarea" placeholder="Enter your desctiption" required=""></textarea>
+                                      <textarea class="form-control" id="validationTextarea" placeholder="Enter your desctiption" required="" name="description"></textarea>
                                       <div class="invalid-feedback">Please enter a description in the textarea.</div>
                                     </div>
                                     
@@ -138,9 +150,12 @@
 @endsection
 
 @section('plugins-last')
+
     <script src="{{ asset('dashboard/assets/js/form-validation-custom.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/datatable/datatables/jquery.dataTables.min.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/datatable/datatables/dataTables1.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/datatable/datatables/dataTables.bootstrap5.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/datatable/datatables/datatable.custom2.js')}}"></script>
+
+   
 @endsection

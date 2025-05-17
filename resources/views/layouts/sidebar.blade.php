@@ -41,7 +41,7 @@
                   </li>
                   <li class="sidebar-main-title">
                     <div>
-                      <h6>App</h6>
+                      <h6>Applications</h6>
                     </div>
                   </li>
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title" href="#">
@@ -78,38 +78,24 @@
                     </li>
                   <li class="sidebar-main-title">
                     <div>
-                      <h6 class="lan-8">Applications</h6>
+                      <h6 class="lan-8">Management</h6>
                     </div>
                   </li>
-                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"> </i><a class="sidebar-link sidebar-title" href="#">
-                      <svg class="stroke-icon">
-                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-project')}}"></use>
-                      </svg>
-                      <svg class="fill-icon">
-                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-project')}}"></use>
-                      </svg><span>Projects        </span></a>
-                    <ul class="sidebar-submenu">
-                      <li>
-                        <label class="badge badge-light-success">New</label><a href="project-details.html">Project Details</a>
-                      </li>
-                      <li><a href="project-list.html">Project List</a></li>
-                      <li><a href="createnew.html">Create new</a></li>
-                    </ul>
-                  </li>
+                 
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="file-manager.html">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-file')}}"></use>
                       </svg>
                       <svg class="fill-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-file')}}"></use>
-                      </svg><span>File manager</span></a></li>
+                      </svg><span>Category</span></a></li>
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack">           </i><a class="sidebar-link sidebar-title link-nav" href="kanban.html">
                       <svg class="stroke-icon">
-                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-board')}}"></use>
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-user')}}"></use>
                       </svg>
                       <svg class="fill-icon">
-                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-board')}}"></use>
-                      </svg><span>kanban Board</span></a>
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-user')}}"></use>
+                      </svg><span>Users</span></a>
                     </li>
                 </ul>
               </div>
