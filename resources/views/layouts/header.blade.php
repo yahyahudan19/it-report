@@ -49,15 +49,26 @@
               <li class="profile-nav onhover-dropdown pe-0 py-0">
                 <div class="d-flex profile-media"><img class="b-r-10" src="{{ asset('dashboard/assets/images/dashboard/profile.png')}}" alt="">
                   <div class="flex-grow-1"><span>{{ auth()->user()->name }}</span>
-                    <p class="mb-0">{{ auth()->user()->role }} <i class="middle fa-solid fa-angle-down"></i></p>
+                    @if(auth()->user()->role == 'sys_admin')
+                      <p class="mb-0">{{ ucfirst(auth()->user()->role) }} <i class="middle fa-solid fa-angle-down"></i></p>
+                    @else
+                      <p class="mb-0">Department {{ auth()->user()->staff->department->name }} - {{ auth()->user()->staff->position->name }} <i class="middle fa-solid fa-angle-down"></i></p>
+                    @endif
                   </div>
                 </div>
-                <ul class="profile-dropdown onhover-show-div">
+                <ul class="profile-dropdown onhover-show-div" style="right: 0; left: auto;">
                   <li><a href="sign-up.html"><i data-feather="user"></i><span>Account </span></a></li>
                   <li><a href="mail-box.html"><i data-feather="mail"></i><span>Inbox</span></a></li>
                   <li><a href="task.html"><i data-feather="file-text"></i><span>Taskboard</span></a></li>
-                  <li><a href="/setting"><i data-feather="settings"></i><span>Settings</span></a></li>
-                  <li><a href="/logout"><i data-feather="log-in"> </i><span>Log out</span></a></li>
+                  <li><a href="/settings"><i data-feather="settings"></i><span>Settings</span></a></li>
+                  <li>
+                    <form action="/logout" method="POST" style="display:inline;" id="logout-form">
+                      @csrf
+                      <a href="#" id="logout-link">
+                        <i data-feather="log-in"></i><span>Log out</span>
+                      </a>
+                    </form>
+                  </li>
                 </ul>
               </li>
             </ul>
@@ -73,3 +84,20 @@
           <script class="empty-template" type="text/x-handlebars-template"><div class="EmptyMessage">Your search turned up 0 results. This most likely means the backend is down, yikes!</div></script>
         </div>
       </div>
+
+      <script>
+        document.getElementById('logout-link').addEventListener('click', function(e) {
+          e.preventDefault();
+          Swal.fire({
+            title: 'Are you sure you want to log out?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, log out',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              document.getElementById('logout-form').submit();
+            }
+          });
+        });
+      </script>

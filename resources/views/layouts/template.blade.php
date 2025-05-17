@@ -30,6 +30,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/assets/css/vendors/animate.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/assets/css/vendors/select.bootstrap5.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/assets/css/vendors/sweetalert2.css')}}">
+    
     <!-- Plugins css Ends-->
     @yield('plugins-head')
     <!-- Bootstrap css-->
@@ -99,7 +100,6 @@
     <script src="{{ asset('dashboard/assets/js/sidebar-menu.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/sidebar-pin.js')}}"></script>
 
-    
     <script src="{{ asset('dashboard/assets/js/slick/slick.min.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/slick/slick.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/header-slick.js')}}"></script>
@@ -109,11 +109,6 @@
     <script src="{{ asset('dashboard/assets/js/notify/bootstrap-notify.min.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/notify/index.js')}}"></script>
  
-    <script src="{{ asset('dashboard/assets/js/typeahead/handlebars.js')}}"></script>
-    <script src="{{ asset('dashboard/assets/js/typeahead/typeahead.bundle.js')}}"></script>
-    <script src="{{ asset('dashboard/assets/js/typeahead/typeahead.custom.js')}}"></script>
-    <script src="{{ asset('dashboard/assets/js/typeahead-search/handlebars.js')}}"></script>
-    <script src="{{ asset('dashboard/assets/js/typeahead-search/typeahead-custom.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/sweet-alert/sweetalert.min.js')}}"></script>
     <!-- Plugins JS Ends-->
 
@@ -122,5 +117,45 @@
     <script src="{{ asset('dashboard/assets/js/script.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/script1.js')}}"></script>
     <script src="{{ asset('dashboard/assets/js/theme-customizer/customizer.js')}}"></script>
+
+    @if (session('status') && session('message'))
+        <script>
+            let status = "{{ session('status') }}";
+            let message = "{{ session('message') }}";
+
+            if (status === 'success') {
+                Swal.fire({
+                    text: message,
+                    icon: "success",
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok, got it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                });
+            } else if (status === 'error') {
+                Swal.fire({
+                    text: message,
+                    icon: "error",
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok, got it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                });
+            } else if (status === 'warning') {
+                Swal.fire({
+                    text: message,
+                    icon: "warning",
+                    buttonsStyling: false,
+                    confirmButtonText: "Ok, got it!",
+                    customClass: {
+                        confirmButton: "btn btn-primary"
+                    }
+                });
+            }
+        </script>
+    @endif
+    
   </body>
 </html>

@@ -39,6 +39,25 @@
                       </li>
                     </ul>
                   </li>
+                   @if (auth()->user()->role !== 'staff')
+                  <li class="sidebar-main-title">
+                    <div>
+                      <h6>Head Of Unit</h6>
+                    </div>
+                  </li>
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title" href="#">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-reports')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-reports')}}"></use>
+                      </svg><span>Evaluation</span></a>
+                    <ul class="sidebar-submenu">
+                      <li><a href="/assessment/hou">Assessment</a></li>
+                      <li><a href="/evaluation/hou">Evaluation</a></li>
+                    </ul>
+                  </li>
+                  @endif
                   <li class="sidebar-main-title">
                     <div>
                       <h6>Applications</h6>
@@ -52,8 +71,8 @@
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-reports')}}"></use>
                       </svg><span>Evaluation</span></a>
                     <ul class="sidebar-submenu">
-                      <li><a href="/assessment">Assessment</a></li>
-                      <li><a href="/evaluation">Evaluation</a></li>
+                      <li><a href="/assessment/my">My Assessment</a></li>
+                      <li><a href="/evaluation/my">My Evaluation</a></li>
                     </ul>
                   </li>
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title" href="#">
@@ -78,18 +97,18 @@
                     </li>
                   <li class="sidebar-main-title">
                     <div>
-                      <h6 class="lan-8">Management</h6>
+                      <h6 class="lan-10">Management</h6>
                     </div>
                   </li>
                  
-                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="file-manager.html">
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/category">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-file')}}"></use>
                       </svg>
                       <svg class="fill-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-file')}}"></use>
                       </svg><span>Category</span></a></li>
-                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack">           </i><a class="sidebar-link sidebar-title link-nav" href="kanban.html">
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack">           </i><a class="sidebar-link sidebar-title link-nav" href="/users">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-user')}}"></use>
                       </svg>

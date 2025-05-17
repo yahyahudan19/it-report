@@ -1,7 +1,7 @@
 @extends('layouts.template')
 
 @section('title')
-  My Assessment
+  Assessment 
 @endsection
 
 @section('plugins-head')
@@ -77,6 +77,18 @@
                                       <div class="valid-feedback">
                                       Looks's Good!</div>
                                     </div>
+                                    
+                                    <div class="col-md-12">
+                                        <label class="form-label" for="staffSelect">Staff</label>
+                                        <select class="form-select" id="staffSelect1" name="staff_id" required>
+                                            <option value="" disabled selected>Select staff</option>
+                                            @foreach($department_staff as $staff)
+                                                <option value="{{ $staff->id }}">{{ $staff->user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="invalid-feedback">Please select a staff member.</div>
+                                        <div class="valid-feedback">Looks's Good!</div>
+                                    </div>
                                     <div class="col-12"> 
                                       <label class="form-label" for="validationTextarea">Description</label>
                                       <textarea class="form-control" id="validationTextarea" placeholder="Enter your desctiption" required="" name="description"></textarea>
@@ -121,10 +133,20 @@
                                                   <label class="form-label" for="editQuantity">Quantity</label>
                                                   <input class="form-control" id="editQuantity" type="number" min="1" step="1" placeholder="10" required="" name="target_quantity">
                                               </div>
-
+                                                <div class="col-md-12">
+                                                    <label class="form-label" for="staffSelect">Staff</label>
+                                                    <select class="form-select" id="staffSelect" name="staff_id" required>
+                                                        <option value="" disabled selected>Select staff</option>
+                                                         @foreach($department_staff as $staff)
+                                                            <option value="{{ $staff->id }}">{{ $staff->user->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="invalid-feedback">Please select a staff member.</div>
+                                                    <div class="valid-feedback">Looks's Good!</div>
+                                                </div>
                                               <div class="col-12">
                                                   <label class="form-label" for="editDescription">Description</label>
-                                                  <textarea class="form-control" id="editDescription" placeholder="Enter your description" required="" name="description"></textarea>
+                                                  <textarea class="form-control" id="editDescription" placeholder="Enter your description" required="" name="description" style="height: 120px;"></textarea>
                                               </div>
 
                                               <div class="col-12">
@@ -148,6 +170,7 @@
                             <th>Description</th>
                             <th>Quantity</th>
                             <th>Unit</th>
+                            <th>staff</th>
                             <th>Action</th>
                           </tr>
                         </thead>
@@ -156,9 +179,10 @@
                             <tr>
                               <td>{{ $loop->iteration }}</td>
                               <td>{{$wt->title}}</td>
-                              <td>{{$wt->description}}</td>
+                            <td>{{ \Illuminate\Support\Str::words($wt->description, 7, '...') }}</td>
                               <td>{{$wt->target_quantity}}</td>
                               <td>{{$wt->unit}}</td>
+                              <td><span class="badge rounded-pill badge-success">{{$wt->staff->user->name}}</span></td>
                               <td> 
                                 <ul class="action"> 
                                   <li class="edit" data-id="{{ $wt->id }}">
@@ -256,7 +280,6 @@
                 id: data.id,
                 title: data.title,
                 unit: data.unit,
-                // category_id: data.category_id, // Uncomment jika ada field kategori di form edit
                 target_quantity: data.target_quantity,
                 description: data.description
               };
@@ -268,6 +291,9 @@
               // $('#editCategory').val(data.category_id); // Uncomment jika ada field kategori di form edit
               $('#editQuantity').val(data.target_quantity);
               $('#editDescription').val(data.description);
+
+              // Pilih staff berdasarkan data.staff_id
+                $('#staffSelect').val(data.staff_id);
 
               // Tampilkan modal edit
               $('#editModal').modal('show');
