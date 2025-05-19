@@ -7,6 +7,7 @@
 @section('plugins-head')
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/assets/css/vendors/date-picker.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('dashboard/assets/css/vendors/select/bootstrap-select.min.css')}}">
+    
 @endsection
 
 @section('content')
@@ -23,7 +24,7 @@
                                     <svg class="stroke-icon">
                                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-home') }}"></use>
                                     </svg></a></li>
-                            <li class="breadcrumb-item">App</li>
+                            <li class="breadcrumb-item">Management</li>
                             <li class="breadcrumb-item active">Category</li>
                         </ol>
                     </div>
@@ -139,7 +140,7 @@
                         </div>
                         <div class="card-body">
                             <div class="table-responsive custom-scrollbar">
-                                <table class="display table-striped border" id="basic-1">
+                                <table class="display table-striped border" id="basic-6">
                                     <thead>
                                         <tr>
                                             <th>No</th>

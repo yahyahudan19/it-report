@@ -30,6 +30,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/report/store', [ReportController::class,'store'])->name('report.store');
     Route::delete('/reports/{id}', [ReportController::class, 'destroy'])->name('reports.destroy');
     Route::post('/reports/assign', [ReportController::class, 'assign'])->name('report.assign');
+    Route::get('/reports/detail/{id}', [ReportController::class, 'detail'])->name('report.detail');
+    Route::put('/reports/{id}', [ReportController::class, 'update'])->name('report.update');
 
 
     Route::get('/assessment/my', [AssessmentController::class,'index'])->name('assessment.index');

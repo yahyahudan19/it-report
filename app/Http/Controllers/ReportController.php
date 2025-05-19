@@ -150,6 +150,19 @@ class ReportController extends Controller
         ]);
     }
 
+    public function detail($id)
+    {
+        // Ambil data report berdasarkan report_id
+        $report = Report::with(['staff', 'room', 'attachments'])->findOrFail($id);
+        $reporter = Staff::all();
+
+        return view('apps.reports.detail', compact('report', 'reporter'));	
+    }
+
+    public function update(Request $request, $id){
+        dd($request->all());
+    }
+
 
 
 }

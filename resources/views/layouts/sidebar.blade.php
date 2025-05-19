@@ -139,6 +139,14 @@
                       </svg><span>Department</span></a>
                     </li>
                   @endif
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/location">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-maps')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-maps')}}"></use>
+                      </svg><span>Location</span></a>
+                    </li>
                   <li class="sidebar-main-title">
                     <div>
                       <h6 class="lan-11">Settings</h6>

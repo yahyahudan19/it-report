@@ -268,9 +268,8 @@
                                                 </td>
                                                 <td>
                                                     <ul class="action">
-                                                        <li class="edit" data-id="{{ $rep->id }}">
-                                                            <a href="#!"><i
-                                                                    class="fa-regular fa-pen-to-square"></i></a>
+                                                        <li class="edit">
+                                                            <a href="/reports/detail/{{$rep->id}}"><i class="fa-regular fa-pen-to-square"></i></a>
                                                         </li>
 
                                                         <li class="delete" data-id="{{ $rep->id }}">
