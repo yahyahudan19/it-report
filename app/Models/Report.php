@@ -43,4 +43,11 @@ class Report extends Model
     {
         return $this->hasMany(ReportHandling::class);
     }
+
+    public function staff()
+    {
+        return $this->belongsToMany(Staff::class, 'report_handling')
+                    ->withPivot('status', 'created_at', 'response_time') // Kolom tambahan di pivot table jika ada
+                    ->withTimestamps(); // Jika kamu ingin timestamp di pivot table
+    }
 }

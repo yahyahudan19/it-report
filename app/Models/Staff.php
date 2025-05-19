@@ -56,4 +56,11 @@ class Staff extends Model
     {
         return $this->hasMany(WorkLog::class);
     }
+
+     public function reports()
+    {
+        return $this->belongsToMany(Report::class, 'report_handling')
+                    ->withPivot('status', 'assigned_at', 'resolved_at') // Kolom tambahan di pivot table jika ada
+                    ->withTimestamps(); // Jika kamu ingin timestamp di pivot table
+    }
 }

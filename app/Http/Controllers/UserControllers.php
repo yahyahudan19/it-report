@@ -110,41 +110,48 @@ class UserControllers extends Controller
         ]);
     }
     public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'whatsapp_number' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|string|in:staff,kepala',
-            'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
-            'room_id' => 'required|exists:rooms,id',
-        ]);
+    {   
+
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'whatsapp_number' => 'required|string|max:255',
+                'username' => 'required|string|max:255',
+                'password' => 'nullable|string',
+                'role' => 'required|string|in:staff,kepala',
+                'position_id' => 'required|exists:positions,id',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validasi gagal!'.$e->getMessage(),
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $user = User::findOrFail($id);
         $staff = Staff::where('user_id', $id)->first();
 
+        // Generate email berdasarkan username dan department
+        $department = Department::find($staff->department_id);
+        $email = strtolower($request->username . '-' . strtolower($department->name) . '@karsa.id');
+
         // Update staff data
         try {
             $staff->update([
-            'department_id' => $validated['department_id'],
-            'position_id' => $validated['position_id'],
-            'room_id' => $validated['room_id'],
-            'whatsapp_number' => $validated['whatsapp_number'],
+                'position_id' => $validated['position_id'],
+                'whatsapp_number' => $validated['whatsapp_number'],
             ]);
             // Update user data
             $user->update([
-            'name' => $validated['name'],
-            'username' => $validated['username'],
-            'role' => $validated['role'],
-            'department_id' => $validated['department_id'],
-            'position_id' => $validated['position_id'],
-            'room_id' => $validated['room_id'],
+                'name' => $validated['name'],
+                'username' => $validated['username'],
+                'email' => $email,  // regenerate email
+                'role' => $validated['role'],
+                'position_id' => $validated['position_id'],
             ]);
 
             if ($request->password) {
-            $user->update(['password' => bcrypt($request->password)]);
+                $user->update(['password' => bcrypt($request->password)]);
             }
         } catch (\Exception $e) {
             return response()->json([
@@ -164,6 +171,23 @@ class UserControllers extends Controller
         $user->delete();
 
         return response()->json(['message' => 'User deleted successfully']);
+    }
+
+    public function searchReporters(Request $request)
+    {
+        $query = $request->query('q');
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $staffs = \App\Models\Staff::with('user')
+            ->whereHas('user', function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%');
+            })
+            ->limit(10)
+            ->get();
+
+        return response()->json($staffs);
     }
 
 

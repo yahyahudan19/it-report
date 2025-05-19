@@ -19,6 +19,7 @@ class WorkCategorySeeder extends Seeder
             DB::table('work_categories')->insert([
                 'id' => Str::uuid(),
                 'name' => $name,
+                'description' => 'test',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

@@ -57,6 +57,18 @@
                       <li><a href="/evaluation/hou">Evaluation</a></li>
                     </ul>
                   </li>
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title" href="#">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-learning')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-learning')}}"></use>
+                      </svg><span>Department</span></a>
+                    <ul class="sidebar-submenu">
+                      <li><a href="/positions/hou">Positions</a></li>
+                      <li><a href="/staff/hou">Staff</a></li>
+                    </ul>
+                  </li>
                   @endif
                   <li class="sidebar-main-title">
                     <div>
@@ -87,7 +99,7 @@
                       <li><a href="/handling">Handling</a></li>
                     </ul>
                   </li>
-                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="kanban.html">
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/task">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-task')}}"></use>
                       </svg>
@@ -100,7 +112,7 @@
                       <h6 class="lan-10">Management</h6>
                     </div>
                   </li>
-                 
+                 @if (auth()->user()->role !== 'staff')
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/category">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-file')}}"></use>
@@ -108,13 +120,47 @@
                       <svg class="fill-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-file')}}"></use>
                       </svg><span>Category</span></a></li>
-                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack">           </i><a class="sidebar-link sidebar-title link-nav" href="/users">
+                  @endif
+                  @if (auth()->user()->role == 'sys_admin')
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/users">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-user')}}"></use>
                       </svg>
                       <svg class="fill-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-user')}}"></use>
                       </svg><span>Users</span></a>
+                    </li>
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/department">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-learning')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-learning')}}"></use>
+                      </svg><span>Department</span></a>
+                    </li>
+                  @endif
+                  <li class="sidebar-main-title">
+                    <div>
+                      <h6 class="lan-11">Settings</h6>
+                    </div>
+                  </li>
+                  @if (auth()->user()->role == 'sys_admin')
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/whatsapp">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-contact')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-contact')}}"></use>
+                      </svg><span>Whatsapp Gateway</span></a>
+                    </li>
+                  @endif
+                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/profile">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-user')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-user')}}"></use>
+                      </svg><span>Profile</span></a>
                     </li>
                 </ul>
               </div>

@@ -9,7 +9,7 @@ class WorkCategory extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','description'];
 
     public function workTasks()
     {

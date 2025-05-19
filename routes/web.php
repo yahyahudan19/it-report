@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\AssessmentController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserControllers;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Models\Room;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,6 +27,10 @@ Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Route::get('/report', [ReportController::class,'index'])->name('report.index');
+    Route::post('/report/store', [ReportController::class,'store'])->name('report.store');
+    Route::delete('/reports/{id}', [ReportController::class, 'destroy'])->name('reports.destroy');
+    Route::post('/reports/assign', [ReportController::class, 'assign'])->name('report.assign');
+
 
     Route::get('/assessment/my', [AssessmentController::class,'index'])->name('assessment.index');
     Route::post('/assessment/store', [AssessmentController::class,'store'])->name('assessment.store');
@@ -39,6 +46,25 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/users/{id}', [UserControllers::class, 'destroy']);
 
     Route::get('/get-positions/{departmentId}', [UserControllers::class, 'getPositionsByDepartment']);
+
+    Route::get('/department', [DepartmentController::class,'index'])->name('department.index');
+    Route::post('/department/store', [DepartmentController::class,'store'])->name('department.store');
+    Route::post('/positions/store', [DepartmentController::class,'store_positions'])->name('positions.store');
+
+    Route::get('/positions/hou', [DepartmentController::class,'index_hou'])->name('positions.index.hou');
+    Route::get('/staff/hou', [DepartmentController::class,'staff_hou'])->name('positions.staff.hou');
+
+    Route::get('/users', [UserControllers::class,'index'])->name('users.index');
+
+    Route::get('/category', [CategoryController::class,'index'])->name('category.index');
+    Route::post('/category/store', [CategoryController::class,'store'])->name('category.store');
+    Route::get('/category/{id}', [CategoryController::class, 'show'])->name('category.show');
+    Route::put('/category/{id}', [CategoryController::class, 'update'])->name('category.update');
+    Route::delete('/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
+
+    Route::get('/reporters/search', [UserControllers::class, 'searchReporters'])->name('reporters.search');
+    Route::get('/locations/search', [DepartmentController::class, 'searchRoom'])->name('locations.search');
+
 
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');

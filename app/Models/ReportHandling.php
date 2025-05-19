@@ -9,6 +9,8 @@ class ReportHandling extends Model
 {
     use HasUuids;
 
+    protected $table = 'report_handling';
+
     protected $fillable = [
         'report_id',
         'staff_id',
