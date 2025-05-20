@@ -154,7 +154,7 @@
                                                     <!-- Hidden fields for report_id and room_id -->
                                                     <input type="hidden" name="report_id" id="report_id">
                                                     <input type="hidden" name="room_id" id="room_id">
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-12">
                                                         <label class="form-label" for="assignmenStaff">Assign To</label>
                                                         <select id="assignmenStaff" name="assignmenStaff[]" class="form-control" multiple required>
                                                             @foreach ($reporter as $s)
@@ -169,6 +169,15 @@
                                                             <option value="handling">handling</option>
                                                             <option value="done">done</option>
                                                             <option value="pending">pending</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" for="assignmenCategory">Category</label>
+                                                        <select id="assignmenCategory" name="assignmenCategory" class="form-control" required>
+                                                        <option value="" disabled selected>Select Category</option>
+                                                        @foreach ($category as $cat)
+                                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                        @endforeach
                                                         </select>
                                                     </div>
                                                     <div class="col-12">
@@ -478,8 +487,15 @@
             searchPlaceholderValue: 'Type to search...',
         });
 
-         const assignmenStatus = document.getElementById('assignmenStatus');
+        const assignmenStatus = document.getElementById('assignmenStatus');
         new Choices(assignmenStatus, {
+            searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+            itemSelectText: '',
+            shouldSort: false,
+        });
+
+        const assignmenCategory = document.getElementById('assignmenCategory');
+        new Choices(assignmenCategory, {
             searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
             itemSelectText: '',
             shouldSort: false,

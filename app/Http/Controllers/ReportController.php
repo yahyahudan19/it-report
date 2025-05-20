@@ -7,6 +7,7 @@ use App\Models\Report;
 use App\Models\ReportHandling;
 use App\Models\Room;
 use App\Models\Staff;
+use App\Models\WorkCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +19,8 @@ class ReportController extends Controller
         $report = Report::with('staff')->get();
         $reporter = Staff::all();
         $location = Room::all();
-        return view('apps.reports.index',compact('report','reporter','location'));
+        $category = WorkCategory::all();
+        return view('apps.reports.index',compact('report','reporter','location','category'));	
         
     }
 
@@ -119,10 +121,12 @@ class ReportController extends Controller
 
     public function assign(Request $request)
     {
+        // dd($request->all());
         // Validasi input dari form
         $validated = $request->validate([
             'assignmenStaff' => 'required|array',  // Pastikan ada staff yang dipilih
             'assignmenStatus' => 'required|string|in:accept,handling,done,pending',  // Status yang valid
+            'assignmenCategory' => 'required',  // Status yang valid
             'report_id' => 'required|exists:reports,id',  // Validasi report_id yang valid
             'room_id' => 'required|exists:rooms,id',  // Validasi room_id yang valid
         ]);
@@ -131,6 +135,7 @@ class ReportController extends Controller
         $reportId = $validated['report_id'];
         $roomId = $validated['room_id'];
         $status = $validated['assignmenStatus'];
+        $category = $validated['assignmenCategory'];
 
         // Looping untuk setiap staff yang dipilih dan assign mereka ke report
         foreach ($validated['assignmenStaff'] as $staffId) {
@@ -140,6 +145,7 @@ class ReportController extends Controller
                 'staff_id' => $staffId,    // Menghubungkan ke staff yang dipilih
                 'room_id' => $roomId,      // Menghubungkan ke room yang dipilih
                 'status' => $status,       // Status yang dipilih (accept, handling, etc.)
+                'category_id' => $category,       // Status yang dipilih (accept, handling, etc.)
             ]);
         }
 
@@ -152,15 +158,43 @@ class ReportController extends Controller
 
     public function detail($id)
     {
-        // Ambil data report berdasarkan report_id
         $report = Report::with(['staff', 'room', 'attachments'])->findOrFail($id);
+        // dd($report);
+        // Tambahkan ukuran file ke setiap attachment
+        foreach ($report->attachments as $attachment) {
+            if (Storage::disk('public')->exists($attachment->file_path)) {
+                $sizeBytes = Storage::disk('public')->size($attachment->file_path);
+                $attachment->size_kb = number_format($sizeBytes / 1024, 2);
+            } else {
+                $attachment->size_kb = 0;
+            }
+        }
+
         $reporter = Staff::all();
 
-        return view('apps.reports.detail', compact('report', 'reporter'));	
+        return view('apps.reports.detail', compact('report', 'reporter'));
     }
 
     public function update(Request $request, $id){
         dd($request->all());
+    }
+
+    public function destroyAssignment($id)
+    {
+        try {
+            $reportHandling = ReportHandling::findOrFail($id);
+            $reportHandling->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Assignment has been deleted successfully!',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete assignment: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
 

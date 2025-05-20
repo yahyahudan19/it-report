@@ -101,10 +101,66 @@ Details Reports
                     <div class="invalid-feedback">Please enter your project details.</div>
                   </div>
                   <div class="col-12">
-                    <label class="form-label" for="formFileMultiple">Attachment</label>
+                    <label class="form-label" for="formFileMultiple">New Attachment</label>
                     <input class="form-control" id="formFileMultiple" type="file" multiple="" name="attachments[]">
                     <div class="invalid-feedback">Please select your files.</div>
                   </div>
+                  <div class="col-6">
+                    <label class="form-label" for="formFileMultiple">Attachment</label>
+                    <div class="d-flex flex-row flex-wrap gap-3"> <!-- flex-wrap untuk responsif -->
+                      @if ($report->attachments->isEmpty())
+                          <p>No attachments available.</p>
+                      @else
+                          @foreach ($report->attachments as $attachment)
+                              <div class="attachment-file common-flex" style="min-width: 200px;">
+                                  <div class="common-flex align-items-center">
+                                    @if ($attachment->file_type == 'image/png' || $attachment->file_type == 'image/jpeg')
+                                      <img class="img-fluid" src="{{ asset('dashboard/assets/images/project/files/png.png')}}" alt="png">
+                                    @else
+                                      <img class="img-fluid" src="{{ asset('dashboard/assets/images/project/files/pdf.png')}}" alt="pdf">
+                                    @endif
+                                      <div class="d-block"> 
+                                          <p class="mb-0">Attachment File</p>
+                                          <p class="c-o-light">{{ $attachment->size_kb }} KB</p>
+                                      </div>
+                                  </div>
+                                  <a href="{{ asset('storage/' . $attachment->file_path) }}" download target="_blank">
+                                      <i class="fa-solid fa-download f-light"></i>
+                                  </a>
+                              </div>
+                          @endforeach
+                      @endif
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label" for="formFileMultiple">Assigned Staff</label>
+                    <div class="d-flex flex-row flex-wrap gap-3"> <!-- flex-wrap untuk responsif -->
+                      @if ($report->staff->isEmpty())
+                        <button class="btn btn-danger position-relative" type="button">No Assigned Staff </button>
+                      @else
+                          @foreach ($report->staff as $st)
+                              <div class="attachment-file common-flex" style="min-width: 250px;">
+                                  <div class="common-flex align-items-center">
+                                      <img class="img-fluid" src="{{ asset('dashboard/assets/images/avtar/4.jpg')}}" alt="pdf">
+                                      <div class="d-block"> 
+                                          <p class="mb-0">{{ explode('@', $st->user->email)[0] }}</p>
+                                          @if ($st->pivot->status == 'accept')
+                                            <span class="badge badge-success">{{$st->pivot->status}} </span>
+                                          @else
+                                            <span class="badge badge-warning">{{$st->pivot->status}} </span>
+                                          @endif
+                                            <a href="#" class="badge badge-primary">Detail </a>
+                                      </div>
+                                  </div>
+                                 <a href="#" class="btn-delete-assignment" data-id="{{ $st->pivot->id }}" title="Delete Assignment">
+                                    <i class="fa-solid fa-trash-alt f-light"></i>
+                                </a>
+                              </div>
+                          @endforeach
+                      @endif
+                    </div>
+                  </div>
+                  
                   <div class="col-12">
                     <div class="card-body visual-button visual-button1 common-flex justify-content-end">
                       <button class="btn btn-primary" type="submit"><i data-feather="alert-triangle"></i> Update</button>
@@ -267,6 +323,55 @@ Details Reports
     shouldSort: false,
   });
 </script>
+
+<!-- Script to handle delete assign -->
+<script>
+  $(document).ready(function() {
+      // Klik tombol Delete Assignment
+      $(".btn-delete-assignment").on("click", function(e) {
+          e.preventDefault();
+          var assignmentId = $(this).data("id"); // Ambil ID assignment yang akan dihapus
+
+          Swal.fire({
+              title: 'Are you sure?',
+              text: 'This assignment will be deleted!',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, delete it!',
+              cancelButtonText: 'No, cancel!',
+              reverseButtons: true
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  $.ajax({
+                      url: '/assign/' + assignmentId, // Sesuaikan dengan route delete assignment
+                      method: 'DELETE',
+                      data: {
+                          "_token": "{{ csrf_token() }}" // Kirim CSRF token
+                      },
+                      success: function(data) {
+                          Swal.fire(
+                              'Deleted!',
+                              'The assignment has been deleted.',
+                              'success'
+                          ).then(() => {
+                              location.reload(); // Reload halaman setelah sukses hapus
+                          });
+                      },
+                      error: function(error) {
+                          console.error(error);
+                          Swal.fire(
+                              'Error!',
+                              'Something went wrong. Please try again.',
+                              'error'
+                          );
+                      }
+                  });
+              }
+          });
+      });
+  });
+</script>
+
 
 
 @endsection

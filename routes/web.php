@@ -32,7 +32,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/reports/assign', [ReportController::class, 'assign'])->name('report.assign');
     Route::get('/reports/detail/{id}', [ReportController::class, 'detail'])->name('report.detail');
     Route::put('/reports/{id}', [ReportController::class, 'update'])->name('report.update');
-
+    
+    Route::delete('/assign/{id}', [ReportController::class, 'destroyAssignment'])->name('assign.destroy');
 
     Route::get('/assessment/my', [AssessmentController::class,'index'])->name('assessment.index');
     Route::post('/assessment/store', [AssessmentController::class,'store'])->name('assessment.store');
