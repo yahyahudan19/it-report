@@ -97,7 +97,7 @@ Details Reports
 
                   <div class="col-12">
                     <label class="form-label" for="validationTextarea">Issue</label>
-                    <textarea class="form-control" id="validationTextarea" placeholder="Enter Project details" required="" rows="4">{{$report->issue}}</textarea>
+                    <textarea class="form-control" id="validationTextarea" name="issue" required="" rows="4">{{$report->issue}}</textarea>
                     <div class="invalid-feedback">Please enter your project details.</div>
                   </div>
                   <div class="col-12">
@@ -149,7 +149,7 @@ Details Reports
                                           @else
                                             <span class="badge badge-warning">{{$st->pivot->status}} </span>
                                           @endif
-                                            <a href="#" class="badge badge-primary">Detail </a>
+                                            <a href="/handling/{{$st->pivot->id}}" target="_blank" class="badge badge-primary">Detail </a>
                                       </div>
                                   </div>
                                  <a href="#" class="btn-delete-assignment" data-id="{{ $st->pivot->id }}" title="Delete Assignment">
@@ -191,7 +191,7 @@ Details Reports
                   <!-- Hidden fields for report_id and room_id -->
                   <input type="hidden" name="report_id" id="report_id">
                   <input type="hidden" name="room_id" id="room_id">
-                  <div class="col-md-6">
+                <div class="col-md-12">
                     <label class="form-label" for="assignmenStaff">Assign To</label>
                     <select id="assignmenStaff" name="assignmenStaff[]" class="form-control" multiple required>
                       @foreach ($reporter as $s)
@@ -204,9 +204,17 @@ Details Reports
                     <select id="assignmenStatus" name="assignmenStatus" class="form-control" required>
                       <option value="accept">accept</option>
                       <option value="handling">handling</option>
-                      <option value="done">done</option>
                       <option value="pending">pending</option>
                     </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="assignmenCategory">Category</label>
+                      <select id="assignmenCategory" name="assignmenCategory" class="form-control" required>
+                      <option value="" disabled selected>Select Category</option>
+                      @foreach ($category as $cat)
+                          <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                      @endforeach
+                      </select>
                   </div>
                   <div class="col-12">
                     <button class="btn btn-primary" type="submit">Submit form</button>
@@ -242,6 +250,7 @@ Details Reports
   });
 </script>
 
+<!-- Script to handle the reporter typeahead -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('reporterTypeahead');
@@ -293,7 +302,58 @@ Details Reports
     });
   });
 </script>
+<!-- Script to handle the location typeahead -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const locationInput = document.getElementById('locationTypeahead');
+            const locationSuggestions = document.getElementById('locationSuggestions');
+            const locationIdInput = document.getElementById('locationId');
+            let locationDebounceTimeout = null;
 
+            locationInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                locationIdInput.value = '';
+                if (locationDebounceTimeout) clearTimeout(locationDebounceTimeout);
+                if (query.length < 2) {
+                    locationSuggestions.style.display = 'none';
+                    locationSuggestions.innerHTML = '';
+                    return;
+                }
+                locationDebounceTimeout = setTimeout(() => {
+                    fetch(`/locations/search?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            locationSuggestions.innerHTML = '';
+                            if (data.length === 0) {
+                                locationSuggestions.style.display = 'none';
+                                return;
+                            }
+                            data.forEach(loc => {
+                                const item = document.createElement('button');
+                                item.type = 'button';
+                                item.className =
+                                    'list-group-item list-group-item-action';
+                                item.textContent = loc.name;
+                                item.onclick = function() {
+                                    locationInput.value = loc.name;
+                                    locationIdInput.value = loc.id;
+                                    locationSuggestions.style.display = 'none';
+                                    locationSuggestions.innerHTML = '';
+                                };
+                                locationSuggestions.appendChild(item);
+                            });
+                            locationSuggestions.style.display = 'block';
+                        });
+                }, 300);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!locationInput.contains(e.target) && !locationSuggestions.contains(e.target)) {
+                    locationSuggestions.style.display = 'none';
+                }
+            });
+        });
+    </script>
 <!-- Script to handle the assign action -->
 <script>
   $(document).ready(function() {
@@ -321,6 +381,13 @@ Details Reports
     searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
     itemSelectText: '',
     shouldSort: false,
+  });
+
+  const assignmenCategory = document.getElementById('assignmenCategory');
+  new Choices(assignmenCategory, {
+      searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+      itemSelectText: '',
+      shouldSort: false,
   });
 </script>
 

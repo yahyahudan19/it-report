@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserControllers;
 use App\Livewire\Settings\Appearance;
@@ -33,6 +34,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/detail/{id}', [ReportController::class, 'detail'])->name('report.detail');
     Route::put('/reports/{id}', [ReportController::class, 'update'])->name('report.update');
     
+    Route::get('/handling', [HandlingController::class,'index'])->name('handling.index');
+    Route::get('/handling/detail/{id}', [HandlingController::class, 'detail'])->name('handling.detail');
+
+
+
+
     Route::delete('/assign/{id}', [ReportController::class, 'destroyAssignment'])->name('assign.destroy');
 
     Route::get('/assessment/my', [AssessmentController::class,'index'])->name('assessment.index');

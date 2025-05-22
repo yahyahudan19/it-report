@@ -137,6 +137,7 @@
                                     </div>
                                 </div>
                                 <!-- Offcanvas Create Report Ends-->
+                                
                                 <!-- Offcanvas Assign Report Stats-->
                                 <div class="modal fade bd-assign-modal-lg" tabindex="-1" role="dialog"
                                     aria-labelledby="myExtraLargeModal" aria-hidden="true">
@@ -167,7 +168,6 @@
                                                         <select id="assignmenStatus" name="assignmenStatus" class="form-control" required>
                                                             <option value="accept">accept</option>
                                                             <option value="handling">handling</option>
-                                                            <option value="done">done</option>
                                                             <option value="pending">pending</option>
                                                         </select>
                                                     </div>
@@ -312,6 +312,7 @@
     <script src="{{ asset('dashboard/assets/js/flat-pickr/flatpickr.js') }}"></script>
     <script src="{{ asset('dashboard/assets/js/flat-pickr/custom-flatpickr.js') }}"></script>
 
+    <!-- Script to handle the reporter typeahead -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const input = document.getElementById('reporterTypeahead');
@@ -364,6 +365,7 @@
         });
     </script>
 
+    <!-- Script to handle the location typeahead -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const locationInput = document.getElementById('locationTypeahead');
@@ -415,7 +417,7 @@
             });
         });
     </script>
-
+    
     <!-- Script to handle the delete action -->
     <script>
         $(document).ready(function() {
@@ -464,6 +466,7 @@
             });
         });
     </script>
+
     <!-- Script to handle the assign action -->
     <script>
 

@@ -122,6 +122,7 @@ class ReportController extends Controller
     public function assign(Request $request)
     {
         // dd($request->all());
+        
         // Validasi input dari form
         $validated = $request->validate([
             'assignmenStaff' => 'required|array',  // Pastikan ada staff yang dipilih
@@ -136,16 +137,40 @@ class ReportController extends Controller
         $roomId = $validated['room_id'];
         $status = $validated['assignmenStatus'];
         $category = $validated['assignmenCategory'];
+        $responseTime = Carbon::now()->format('Y-m-d H:i:s');
+
+        $existingStaff = []; // Array untuk menyimpan nama staff yang sudah ada
 
         // Looping untuk setiap staff yang dipilih dan assign mereka ke report
         foreach ($validated['assignmenStaff'] as $staffId) {
-            // Buat ReportHandling untuk setiap staff yang dipilih
-            ReportHandling::create([
-                'report_id' => $reportId,  // Menghubungkan ke report yang dipilih
-                'staff_id' => $staffId,    // Menghubungkan ke staff yang dipilih
-                'room_id' => $roomId,      // Menghubungkan ke room yang dipilih
-                'status' => $status,       // Status yang dipilih (accept, handling, etc.)
-                'category_id' => $category,       // Status yang dipilih (accept, handling, etc.)
+            // Cek apakah kombinasi report_id dan staff_id sudah ada
+            $existingAssignment = ReportHandling::where('report_id', $reportId)
+            ->where('staff_id', $staffId)
+            ->first();
+
+            if ($existingAssignment) {
+                // Jika sudah ada, tambahkan nama staff ke array existingStaff
+                $staffName = Staff::find($staffId)->user->name;
+                $existingStaff[] = $staffName;
+            } else {
+                // Jika belum ada, buat ReportHandling baru
+                ReportHandling::create([
+                    'report_id' => $reportId,  // Menghubungkan ke report yang dipilih
+                    'staff_id' => $staffId,    // Menghubungkan ke staff yang dipilih
+                    'room_id' => $roomId,      // Menghubungkan ke room yang dipilih
+                    'status' => $status,       // Status yang dipilih (accept, handling, etc.)
+                    'category_id' => $category, // Kategori yang dipilih
+                    'response_time' => $responseTime , // Waktu sekarang dengan format datetime
+                ]);
+            }
+        }
+
+        // Jika ada staff yang sudah ada, tambahkan pesan peringatan
+        if (!empty($existingStaff)) {
+            $existingStaffNames = implode(', ', $existingStaff);
+            return redirect()->back()->with([
+            'status' => 'warning',
+            'message' => "Report has been assigned successfully ! However, the following staff were already assigned: $existingStaffNames",
             ]);
         }
 
@@ -159,6 +184,7 @@ class ReportController extends Controller
     public function detail($id)
     {
         $report = Report::with(['staff', 'room', 'attachments'])->findOrFail($id);
+        $category = WorkCategory::all();
         // dd($report);
         // Tambahkan ukuran file ke setiap attachment
         foreach ($report->attachments as $attachment) {
@@ -172,11 +198,73 @@ class ReportController extends Controller
 
         $reporter = Staff::all();
 
-        return view('apps.reports.detail', compact('report', 'reporter'));
+        return view('apps.reports.detail', compact('report', 'reporter','category'));
     }
 
     public function update(Request $request, $id){
-        dd($request->all());
+        // Validasi input
+        $validated = $request->validate([
+            'reporter_id' => 'required|exists:staff,id',
+            'location_id' => 'required|exists:rooms,id',
+            'report_date' => 'required|date',
+            'priority' => 'required|string|in:critical,high,medium,low',
+            'issue' => 'required|string',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx',
+        ]);
+
+        try {
+            // Cari report berdasarkan ID
+            $report = Report::findOrFail($id);
+
+            // Update data report
+            $report->update([
+                'reporter_id' => $validated['reporter_id'],
+                'location_id' => $validated['location_id'],
+                'report_date' => $validated['report_date'],
+                'priority' => $validated['priority'],
+                'issue' => $validated['issue'],
+            ]);
+
+            // Jika ada file attachment baru, simpan dan hapus yang lama
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+
+                // Hapus file lama jika ada
+                $existingAttachment = $report->attachments()->first();
+                if ($existingAttachment && Storage::disk('public')->exists($existingAttachment->file_path)) {
+                    Storage::disk('public')->delete($existingAttachment->file_path);
+                    $existingAttachment->delete();
+                }
+
+                // Format nama file baru
+                $date = Carbon::now()->format('y-m-d');
+                $reporterId = $validated['reporter_id'];
+                $reportUuid = $report->id;
+                $fileName = "{$date}_report_{$reporterId}_{$reportUuid}.{$file->getClientOriginalExtension()}";
+
+                // Simpan file baru
+                $filePath = $file->storeAs('reports', $fileName, 'public');
+
+                // Simpan data attachment baru
+                Attachment::create([
+                    'attachmentable_id' => $report->id,
+                    'attachmentable_type' => 'App\Models\Report',
+                    'file_path' => $filePath,
+                    'file_type' => $file->getClientMimeType(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with([
+                'status' => 'error',
+                'message' => 'Failed to update report: ' . $e->getMessage(),
+            ]);
+        }
+
+        // Redirect ke halaman reports dengan pesan sukses
+        return redirect()->back()->with([
+            'status' => 'success',
+            'message' => 'Report has been successfully updated',
+        ]);
     }
 
     public function destroyAssignment($id)
