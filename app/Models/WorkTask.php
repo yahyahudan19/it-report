@@ -32,8 +32,10 @@ class WorkTask extends Model
         return $this->hasMany(DailyReport::class);
     }
 
-    public function reportHandlings()
+    public function report_handling()
     {
-        return $this->hasMany(ReportHandling::class);
+        // foreign key 'task_id' di tabel report_handlings
+        return $this->hasMany(ReportHandling::class, 'task_id', 'id');
     }
+
 }

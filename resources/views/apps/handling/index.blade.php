@@ -42,13 +42,14 @@
                         <div class="card-header pb-0 card-no-border d-flex justify-content-between align-items-center">
                             <div class="w-100">
                                 <h5>Handling</h5>
-                                <p class="f-m-light mt-1">Handling reports ensures that issues are addressed promptly and effectively, improving operational efficiency and accountability.</p>
+                                <p class="f-m-light mt-1">Handling reports ensures that issues are addressed promptly and
+                                    effectively, improving operational efficiency and accountability.</p>
                             </div>
                             <div class="card-header-right-icon">
                                 {{-- <button class="btn btn-success" type="button" data-bs-toggle="modal"
                                     data-bs-target=".bd-example-modal-lg"><i class="fa-solid fa-plus pe-2"></i>Add
                                     Reports</button> --}}
-                                
+
                                 <!-- Offcanvas Handling Report Stats-->
                                 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
                                     aria-labelledby="myExtraLargeModal" aria-hidden="true">
@@ -61,10 +62,10 @@
                                             </div>
                                             <div class="modal-body dark-modal">
                                                 <form class="row g-3 needs-validation custom-input" novalidate=""
-                                                    method="POST" action="{{ route('report.store') }}"
+                                                    method="POST" action="{{ route('handling.store') }}"
                                                     enctype="multipart/form-data">
                                                     @csrf
-                                                
+
                                                     <div class="col-md-4">
                                                         <label class="form-label" for="statusSelect">Status</label>
                                                         <select class="form-select" id="statusSelect" name="status"
@@ -88,7 +89,8 @@
                                                     </div>
                                                     <div class="col-md-4">
                                                         <label class="form-label" for="quantityInput">Quantity</label>
-                                                        <input class="form-control" id="quantityInput" type="number" name="quantity" min="1" required>
+                                                        <input class="form-control" id="quantityInput" type="number"
+                                                            name="quantity" min="1" required>
                                                         <div class="invalid-feedback">Please provide a valid quantity.</div>
                                                     </div>
                                                     <div class="col-12">
@@ -115,7 +117,7 @@
                                     </div>
                                 </div>
                                 <!-- Offcanvas Handling Report Ends-->
-                                
+
                             </div>
                         </div>
                         <div class="card-body">
@@ -126,9 +128,8 @@
                                             <th>No</th>
                                             <th>Date</th>
                                             <th>Location</th>
-                                            <th>Issue</th>
+                                            <th>Action Taken</th>
                                             <th>Handling Time</th>
-                                            <th>Response Time</th>
                                             <th>Priority</th>
                                             <th>status</th>
                                             <th>Action</th>
@@ -139,20 +140,19 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
-                                                    {{ \Carbon\Carbon::parse($hand->report->report_date)->translatedFormat('d F Y') }}
+                                                    {{ \Carbon\Carbon::parse($hand->report->report_date)->locale('id')->translatedFormat('d F Y') }}
                                                 </td>
                                                 <td>{{ $hand->room->name }}</td>
-                                                <td>{{ $hand->report->issue }}</td>
                                                 <td>
-                                                    @if ($hand->handling_time)
-                                                        {{ \Carbon\Carbon::parse($hand->handling_time)->translatedFormat('H:i') }}
+                                                    @if ($hand->action_taken)
+                                                        {{ $hand->action_taken }}
                                                     @else
-                                                        <span class="badge bg-warning text-dark">No Time</span>
+                                                        <span class="badge bg-warning text-dark">No Action taken</span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if ($hand->handling_time)
-                                                        {{ \Carbon\Carbon::parse($hand->response_time)->translatedFormat('H:i') }}
+                                                        {{ \Carbon\Carbon::parse($hand->handling_time)->locale('id')->translatedFormat('d F Y H:i') }}
                                                     @else
                                                         <span class="badge bg-warning text-dark">No Time</span>
                                                     @endif
@@ -170,28 +170,26 @@
                                                 </td>
                                                 <td>
                                                     @if ($hand->status === 'accept')
-                                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target=".bd-example-modal-lg">Accept</button>
+                                                        <span class="btn btn-pill btn-xs btn-primary">Accept</span>
                                                     @elseif ($hand->status === 'handling')
-                                                        <button class="btn btn-warning btn-sm text-dark" data-bs-toggle="modal"
-                                    data-bs-target=".bd-example-modal-lg">Handling</button>
+                                                        <span class="btn btn-pill btn-xs btn-dark">Handling</span>
                                                     @elseif ($hand->status === 'done')
-                                                        <button class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                    data-bs-target=".bd-example-modal-lg">Done</button>
+                                                        <span class="btn btn-pill btn-xs btn-success">Done</span>
                                                     @elseif ($hand->status === 'pending')
-                                                        <button class="btn btn-secondary btn-sm" data-bs-toggle="modal"
-                                    data-bs-target=".bd-example-modal-lg">Pending</button>
+                                                        <span class="btn btn-pill btn-xs btn-secondary">Pending</span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     <ul class="action">
                                                         <li class="edit">
-                                                            <a href="/handling/detail/{{$hand->id}}"><i class="fa-regular fa-pen-to-square"></i></a>
+                                                            <a href="/handling/detail/{{ $hand->id }}"><i
+                                                                    class="fa-regular fa-pen-to-square"></i></a>
                                                         </li>
 
                                                         <li class="delete" data-id="{{ $hand->id }}">
-                                                            <a href="#!"><i class="fa-solid fa-trash-can"></i></a>
+                                                            <a href="#!" class="btn-delete btn-da"><i class="fa-solid fa-trash-can"></i></a>
                                                         </li>
+
                                                     </ul>
                                                 </td>
                                             </tr>
@@ -204,7 +202,7 @@
                     </div>
                 </div>
                 <!-- Tabels  Ends-->
-                
+
             </div>
         </div>
         <!-- Container-fluid Ends-->
@@ -219,5 +217,59 @@
     <script src="{{ asset('dashboard/assets/js/datatable/datatables/datatable.custom2.js') }}"></script>
     <script src="{{ asset('dashboard/assets/js/flat-pickr/flatpickr.js') }}"></script>
     <script src="{{ asset('dashboard/assets/js/flat-pickr/custom-flatpickr.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $(".delete").on("click", function() {
+                var handlingId = $(this).data("id");
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This handling data will be deleted permanently!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/handling/' + handlingId, // sesuai route delete
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                _method: 'DELETE' // menggunakan method DELETE
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'The handling data has been deleted.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                let errorMsg = 'Something went wrong. Please try again.';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    errorMsg = xhr.responseText;
+                                }
+                                Swal.fire(
+                                    'Error!',
+                                    errorMsg,
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+                
+            });
+        });
+    </script>
 
 @endsection

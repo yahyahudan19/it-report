@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserControllers;
@@ -36,16 +37,19 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/handling', [HandlingController::class,'index'])->name('handling.index');
     Route::get('/handling/detail/{id}', [HandlingController::class, 'detail'])->name('handling.detail');
-
-
-
+    Route::post('/handling/store', [HandlingController::class,'store'])->name('handling.store');
+    Route::put('/handling/{id}', [HandlingController::class, 'update'])->name('handling.update');
+    Route::delete('/handling/{id}', [HandlingController::class, 'destroy'])->name('handling.destroy');
 
     Route::delete('/assign/{id}', [ReportController::class, 'destroyAssignment'])->name('assign.destroy');
 
     Route::get('/assessment/my', [AssessmentController::class,'index'])->name('assessment.index');
     Route::post('/assessment/store', [AssessmentController::class,'store'])->name('assessment.store');
     Route::resource('assessment', AssessmentController::class);
+
+    Route::get('/evaluation/my', [EvaluationController::class,'index'])->name('evaluation.index');
     
+    Route::get('/evaluation/hou', [EvaluationController::class,'index_hou'])->name('evaluation.hou');
     Route::get('/assessment/hou', [AssessmentController::class,'index_hou'])->name('assessment.index.hou');
 
     Route::get('/users', [UserControllers::class,'index'])->name('users.index');
