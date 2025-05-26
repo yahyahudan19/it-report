@@ -88,14 +88,11 @@
                                                             style="z-index: 1000; display: none;"></div>
                                                     </div>
 
-
                                                     <div class="col-md-6">
                                                         <label class="form-label" for="reportDate">Report Date</label>
-                                                        <input class="form-control" id="datetime-local1" type="date"
-                                                            name="report_date" required
-                                                            value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
-                                                        <div class="invalid-feedback">Please provide a valid date and time.
-                                                        </div>
+                                                        <input class="form-control" id="datetime-local1" type="datetime-local"
+                                                            name="report_date" required>
+                                                        <div class="invalid-feedback">Please provide a valid date and time.</div>
                                                     </div>
 
                                                     <div class="col-md-6">
@@ -122,7 +119,15 @@
                                                     <div class="col-12">
                                                         <label class="form-label" for="attachmentInput">Attachment</label>
                                                         <input class="form-control" id="formFile" type="file"
-                                                            name="attachment" accept=".jpg, .jpeg, .png, .pdf" required>
+                                                            name="attachment" accept=".jpg, .jpeg, .png, .pdf">
+                                                        <div class="invalid-feedback">Please upload.</div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label class="form-label" for="attachmentInput">Notifications</label>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" id="flexSwitchCheckChecked" name="notification" type="checkbox" role="switch" checked="">
+                                                            <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Reporter ?</label>
+                                                        </div>
                                                         <div class="invalid-feedback">Please upload.</div>
                                                     </div>
 
@@ -179,6 +184,22 @@
                                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                                         @endforeach
                                                         </select>
+                                                    </div>
+                                                     <div class="col-6">
+                                                        <label class="form-label" for="attachmentInput">Notifications Staff :</label>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_staff" type="checkbox" role="switch" checked="">
+                                                            <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Staff ?</label>
+                                                        </div>
+                                                        <div class="invalid-feedback">Please upload.</div>
+                                                    </div>
+                                                     <div class="col-6">
+                                                        <label class="form-label" for="attachmentInput">Notifications Reporter :</label>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_reporter" type="checkbox" role="switch" checked="">
+                                                            <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Reporter ?</label>
+                                                        </div>
+                                                        <div class="invalid-feedback">Please upload.</div>
                                                     </div>
                                                     <div class="col-12">
                                                         <button class="btn btn-primary" type="submit">Submit form</button>
@@ -504,4 +525,17 @@
             shouldSort: false,
         });
     </script>
+    <!-- Script to set the current date and time in the datetime-local input -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const input = document.getElementById('datetime-local1');
+         if (input && !input.value) {
+          const now = new Date();
+          const pad = n => n.toString().padStart(2, '0');
+          const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          input.value = formatted;
+      }
+    });
+</script>
+
 @endsection

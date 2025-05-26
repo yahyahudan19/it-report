@@ -13,6 +13,13 @@ class HandlingController extends Controller
 {
     public function index(){
 
+        if (!auth()->user()->staff) {
+            return back()->with([
+            'status' => 'error',
+            'message' => 'You are not a staff member and cannot access this feature.',
+            ]);
+        }
+
         $handling = ReportHandling::whereHas('report', function ($query) {
             $query->where('staff_id', auth()->user()->staff->id);
         })->get();
@@ -52,7 +59,7 @@ class HandlingController extends Controller
         ]);
 
         if ($validatedData === false) {
-            return redirect()->route('handling.index')->with([
+            return redirect()->back()->with([
                 'status' => 'error',
                 'message' => 'Validation failed.',
             ]);

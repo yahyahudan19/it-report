@@ -73,7 +73,6 @@ Details Handling
                     <label class="form-label" for="projectType">Status</label>
                     <select class="form-select" id="projectType" name="status" required>
                       <option disabled value="">Choose...</option>
-                      <option value="accept" @selected($handling->status === 'accept')>Accept</option>
                       <option value="handling" @selected($handling->status === 'handling')>Handling</option>
                       <option value="done" @selected($handling->status === 'done')>Done</option>
                       <option value="pending" @selected($handling->status === 'pending')>Pending</option>
@@ -115,6 +114,14 @@ Details Handling
                       <label class="form-label" for="formFileMultiple">New Attachment</label>
                       <input class="form-control" id="formFileMultiple" type="file" multiple="" name="attachments[]">
                       <div class="invalid-feedback">Please select your files.</div>
+                  </div>
+                  <div class="col-12">
+                      <label class="form-label" for="attachmentInput">Notifications Reporter :</label>
+                      <div class="form-check form-switch">
+                          <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_reporter" type="checkbox" role="switch" checked="">
+                          <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Reporter ?</label>
+                      </div>
+                      <div class="invalid-feedback">Please upload.</div>
                   </div>
                  <div class="col-6">
                       <label class="form-label" for="formFileMultiple">Attachment</label>
@@ -187,12 +194,12 @@ Details Handling
     document.addEventListener('DOMContentLoaded', function() {
     // Set input value to device time (local time) in format YYYY-MM-DD HH:mm
     const input = document.getElementById('handling_time');
-    if (input && !input.value) {
-        const now = new Date();
-        const pad = n => n.toString().padStart(2, '0');
-        const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        input.value = formatted;
-    }
+      if (input && !input.value) {
+          const now = new Date();
+          const pad = n => n.toString().padStart(2, '0');
+          const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+          input.value = formatted;
+      }
     });
 </script>
 

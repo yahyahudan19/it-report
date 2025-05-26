@@ -11,6 +11,8 @@ use App\Models\WorkCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\WhatsappService;
+
 
 class ReportController extends Controller
 {
@@ -42,7 +44,7 @@ class ReportController extends Controller
             $folderPath = 'handling';  // Jika untuk ReportHandling, gunakan folder 'handling'
         }
 
-        $formattedDate = Carbon::createFromFormat('d-m-Y H:i', $validated['report_date'])->format('Y-m-d H:i:s');
+        $formattedDate = Carbon::createFromFormat('Y-m-d H:i', $validated['report_date'])->format('Y-m-d H:i:s');
 
         try {
             // Menyimpan data report
@@ -78,6 +80,21 @@ class ReportController extends Controller
                     'file_path' => $filePath,
                     'file_type' => $file->getClientMimeType(),
                 ]);
+            }
+            // Kirim notifikasi WhatsApp jika ada nomor yang valid
+            if ($request->has('notifications') && $request->notifications === 'on') {
+                try {
+                    $reporter = Staff::with('user')->findOrFail($validated['reporter_id']);
+                    $message = "📢 *Pemberitahuan Laporan*\n\n👤 *Yth. {$reporter->user->name}*,\n\nKami telah menerima laporan terkait:\n📝 _{$validated['issue']}_\n\n📅 Laporan tersebut telah tercatat pada sistem kami pada tanggal *" . Carbon::parse($formattedDate)->translatedFormat('d F Y H:i') . "*.\n\n✅ Terima kasih atas perhatiannya. Tim kami akan segera menindaklanjuti laporan ini sesuai dengan prosedur yang berlaku.\n\n⚠️ *Harap tidak membalas pesan ini, karena pesan ini dikirim secara otomatis.*";
+
+                    WhatsappService::sendText([
+                        'to' => $reporter->whatsapp_number,
+                        'message' => $message,
+                    ]);
+                } catch (\Exception $ex) {
+                    // Bisa di-log jika perlu, atau abaikan agar tidak ganggu alur utama
+                    \Log::warning('Gagal kirim WA notifikasi: ' . $ex->getMessage());
+                }
             }
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with([
@@ -121,65 +138,102 @@ class ReportController extends Controller
 
     public function assign(Request $request)
     {
-        // dd($request->all());
-        
-        // Validasi input dari form
         $validated = $request->validate([
-            'assignmenStaff' => 'required|array',  // Pastikan ada staff yang dipilih
-            'assignmenStatus' => 'required|string|in:accept,handling,done,pending',  // Status yang valid
-            'assignmenCategory' => 'required',  // Status yang valid
-            'report_id' => 'required|exists:reports,id',  // Validasi report_id yang valid
-            'room_id' => 'required|exists:rooms,id',  // Validasi room_id yang valid
+            'assignmenStaff' => 'required|array',
+            'assignmenStatus' => 'required|string|in:accept,handling,done,pending',
+            'assignmenCategory' => 'required',
+            'report_id' => 'required|exists:reports,id',
+            'room_id' => 'required|exists:rooms,id',
+            'notification_staff' => 'nullable|string|in:on,off',
+            'notification_reporter' => 'nullable|string|in:on,off',
         ]);
 
-        // Ambil report_id dan room_id dari input
         $reportId = $validated['report_id'];
-        $roomId = $validated['room_id'];
         $status = $validated['assignmenStatus'];
         $category = $validated['assignmenCategory'];
-        $responseTime = Carbon::now()->format('Y-m-d H:i:s');
+        $roomId = $validated['room_id'];
+        $responseTime = now();
 
-        $existingStaff = []; // Array untuk menyimpan nama staff yang sudah ada
+        $sendToStaff = $validated['notification_staff'] === 'on';
+        $sendToReporter = $validated['notification_reporter'] === 'on';
 
-        // Looping untuk setiap staff yang dipilih dan assign mereka ke report
+        $report = Report::with(['reporter.user', 'room'])->findOrFail($reportId);
+        $existingStaff = [];
+        $assignedStaffNames = [];
+
         foreach ($validated['assignmenStaff'] as $staffId) {
-            // Cek apakah kombinasi report_id dan staff_id sudah ada
-            $existingAssignment = ReportHandling::where('report_id', $reportId)
-            ->where('staff_id', $staffId)
-            ->first();
+            $alreadyAssigned = ReportHandling::where('report_id', $reportId)
+                ->where('staff_id', $staffId)
+                ->exists();
 
-            if ($existingAssignment) {
-                // Jika sudah ada, tambahkan nama staff ke array existingStaff
-                $staffName = Staff::find($staffId)->user->name;
-                $existingStaff[] = $staffName;
+            $staff = Staff::with('user')->find($staffId);
+            if (!$staff) continue;
+
+            if ($alreadyAssigned) {
+                $existingStaff[] = $staff->user->name;
             } else {
-                // Jika belum ada, buat ReportHandling baru
                 ReportHandling::create([
-                    'report_id' => $reportId,  // Menghubungkan ke report yang dipilih
-                    'staff_id' => $staffId,    // Menghubungkan ke staff yang dipilih
-                    'room_id' => $roomId,      // Menghubungkan ke room yang dipilih
-                    'status' => $status,       // Status yang dipilih (accept, handling, etc.)
-                    'category_id' => $category, // Kategori yang dipilih
-                    'response_time' => $responseTime , // Waktu sekarang dengan format datetime
+                    'report_id' => $reportId,
+                    'staff_id' => $staffId,
+                    'room_id' => $roomId,
+                    'status' => $status,
+                    'category_id' => $category,
+                    'response_time' => $responseTime,
+                ]);
+                $assignedStaffNames[] = $staff->user->name;
+
+                // Kirim notifikasi ke staff
+                if ($sendToStaff && $staff->whatsapp_number) {
+                    $message = "📢 *Penanganan Laporan!*\n\n"
+                        . "👤 *Pelapor :* {$report->reporter->user->name}\n"
+                        . "📍 *Lokasi :* {$report->room->name}\n"
+                        . "📝 *Masalah :* {$report->issue}\n"
+                        . "📊 *Status :* {$status}\n\n"
+                        . "⚙️ Mohon segera ditindaklanjuti.\n\n"
+                        . "⚠️ *Pesan otomatis sistem.*";
+                    WhatsappService::sendText([
+                        'to' => $staff->whatsapp_number,
+                        'message' => $message,
+                    ]);
+                }
+            }
+        }
+
+        // Kirim notifikasi ke reporter
+        if ($sendToReporter && !empty($assignedStaffNames)) {
+            $staffList = implode(", ", $assignedStaffNames);
+            $reporterNumber = $report->reporter->whatsapp_number ?? null;
+
+            if ($reporterNumber) {
+                $message = "✅ *Laporan Anda Telah Ditindaklanjuti!*\n\n"
+                    . "📍 *Lokasi :* {$report->room->name}\n"
+                    . "📝 *Masalah :* {$report->issue}\n"
+                    . "👷 *Ditangani Oleh :* {$staffList}\n"
+                    . "📊 *Status Awal :* {$status}\n\n"
+                    . "⚠️ *Pesan ini dikirim otomatis oleh sistem.*";
+
+                WhatsappService::sendText([
+                    'to' => $reporterNumber,
+                    'message' => $message,
                 ]);
             }
         }
 
-        // Jika ada staff yang sudah ada, tambahkan pesan peringatan
         if (!empty($existingStaff)) {
-            $existingStaffNames = implode(', ', $existingStaff);
+            $existingNames = implode(', ', $existingStaff);
             return redirect()->back()->with([
-            'status' => 'warning',
-            'message' => "Report has been assigned successfully ! However, the following staff were already assigned: $existingStaffNames",
+                'status' => 'warning',
+                'message' => "Report assigned. Tapi staff berikut sudah pernah ditugaskan: $existingNames",
             ]);
         }
 
-        // Redirect kembali ke halaman laporan dengan pesan sukses
         return redirect()->back()->with([
             'status' => 'success',
             'message' => 'Report has been assigned successfully!',
         ]);
     }
+
+
 
     public function detail($id)
     {
