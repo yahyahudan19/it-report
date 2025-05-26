@@ -6,6 +6,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\HandlingController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserControllers;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -79,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reporters/search', [UserControllers::class, 'searchReporters'])->name('reporters.search');
     Route::get('/locations/search', [DepartmentController::class, 'searchRoom'])->name('locations.search');
 
+    Route::get('/task', [TaskController::class,'index'])->name('task.index');
 
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');

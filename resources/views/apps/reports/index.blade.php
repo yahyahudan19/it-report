@@ -122,11 +122,19 @@
                                                             name="attachment" accept=".jpg, .jpeg, .png, .pdf">
                                                         <div class="invalid-feedback">Please upload.</div>
                                                     </div>
-                                                    <div class="col-12">
+                                                    <div class="col-6">
                                                         <label class="form-label" for="attachmentInput">Notifications</label>
                                                         <div class="form-check form-switch">
                                                             <input class="form-check-input" id="flexSwitchCheckChecked" name="notification" type="checkbox" role="switch" checked="">
                                                             <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Reporter ?</label>
+                                                        </div>
+                                                        <div class="invalid-feedback">Please upload.</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label" for="attachmentInput">Generative AI</label>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" id="flexSwitchCheckChecked" name="ai_check" type="checkbox" role="switch">
+                                                            <label class="form-check-label" for="flexSwitchCheckChecked">Add Generative Ai ?</label>
                                                         </div>
                                                         <div class="invalid-feedback">Please upload.</div>
                                                     </div>
@@ -233,7 +241,8 @@
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>{{ $rep->room->name }}</td>
                                                 <td>{{ $rep->issue }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($rep->report_date)->translatedFormat('d F Y') }}
+                                                <td>
+                                                    {{ \Carbon\Carbon::parse($rep->report_date)->locale('id')->translatedFormat('d F Y') }}
                                                 </td>
                                                 <td>{{ \Carbon\Carbon::parse($rep->report_date)->translatedFormat('H:i') }}
                                                 </td>

@@ -38,7 +38,7 @@
             <div class="d-flex media-wrapper justify-content-between">
               <div class="flex-grow-1">
                 <div class="greeting-user">
-                  <h2 class="f-w-600">Welcome {{ auth()->user()->name }}!</h2>
+                  <h2 class="f-w-600">Welcome, {{ auth()->user()->username }}!</h2>
                   <p>Here whats happing in your account today</p>
                   <div class="whatsnew-btn"><a class="btn btn-outline-white" href="user-profile.html" target="_blank">View Profile</a></div>
                 </div>

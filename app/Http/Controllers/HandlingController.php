@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attachment;
 use App\Models\ReportHandling;
 use App\Models\WorkTask;
+use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,8 +30,6 @@ class HandlingController extends Controller
     public function detail($id){
         $handling = ReportHandling::with('report')->findOrFail($id);
         $task = WorkTask::where('staff_id', auth()->user()->staff->id)->get();
-        // dd($task); // Uncomment for debugging if needed
-        // dd($handling->report); // Uncomment for debugging if needed
         // Tambahkan ukuran file ke setiap attachment
         foreach ($handling->attachments as $attachment) {
             if (Storage::disk('public')->exists($attachment->file_path)) {
@@ -46,67 +45,83 @@ class HandlingController extends Controller
 
     public function update(Request $request, $id)
     {
-        // dd($request->all());
         // Validasi input
         $validatedData = $request->validate([
-            'status' => 'required|string',
+            'status' => 'required|string|in:accept,handling,done,pending',
             'handling_time' => 'required|date',
             'action_taken' => 'required|string',
             'task_id' => 'required|string',
             'quantity' => 'required|string',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'notification_reporter' => 'nullable|string|in:on,off',
         ]);
 
-        if ($validatedData === false) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Validation failed.',
-            ]);
-        }
+        $handling = ReportHandling::with('report.reporter.user', 'report.room')->findOrFail($id);
 
-        $handling = ReportHandling::findOrFail($id);
-
-
-        // Update data ReportHandling
+        // Update data
         $handling->status = $validatedData['status'];
         $handling->task_id = $validatedData['task_id'];
         $handling->handling_time = $validatedData['handling_time'];
         $handling->quantity = $validatedData['quantity'];
         $handling->action_taken = $validatedData['action_taken'];
-
-        // Simpan perubahan
         $handling->save();
 
-
-        // Proses file attachment jika ada
+        // Proses attachment
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-            // Ambil tanggal dari handling_time (format: Ymd)
-            $date = \Carbon\Carbon::parse($handling->handling_time)->format('Ymd');
-            $staffId = auth()->user()->staff->id;
-            $originalName = preg_replace('/\s+/', '-', $file->getClientOriginalName()); // Ganti spasi dengan strip
-            $filename = "{$date}_{$staffId}_{$originalName}";
+                $date = \Carbon\Carbon::parse($handling->handling_time)->format('Ymd');
+                $staffId = auth()->user()->staff->id;
+                $originalName = preg_replace('/\s+/', '-', $file->getClientOriginalName());
+                $filename = "{$date}_{$staffId}_{$originalName}";
+                $filePath = $file->storeAs('handling', $filename, 'public');
 
-            // Simpan file di folder attachments dengan nama baru
-            $filePath = $file->storeAs('handling', $filename, 'public');
-
-            // Simpan attachment ke dalam tabel attachment
-            $attachment = new Attachment();
-            $attachment->attachmentable_id = $handling->id; // Relasi polymorphic
-            $attachment->attachmentable_type = 'App\Models\ReportHandling'; // Jenis relasi (Model)
-            $attachment->file_path = $filePath;
-            $attachment->file_type = $file->getClientMimeType();
-            $attachment->save();
+                Attachment::create([
+                    'attachmentable_id' => $handling->id,
+                    'attachmentable_type' => 'App\Models\ReportHandling',
+                    'file_path' => $filePath,
+                    'file_type' => $file->getClientMimeType(),
+                ]);
             }
         }
 
-        // Redirect kembali dengan pesan sukses
+        // Kirim notifikasi jika status done dan notifikasi reporter aktif
+        if (
+            $validatedData['status'] === 'done' &&
+            $request->notification_reporter === 'on'
+        ) {
+            $reporter = $handling->report->reporter;
+            $report = $handling->report;
+            $reporterNumber = $reporter->whatsapp_number;
+
+            if ($reporterNumber) {
+                $tanggalSelesai = \Carbon\Carbon::parse($validatedData['handling_time'])
+                    ->translatedFormat('d F Y H:i');
+
+                $message = "✅ *Laporan Anda Telah Diselesaikan!*\n\n"
+                    . "📝 *Issue :* {$report->issue}\n"
+                    . "📅 *Waktu Selesai :* {$tanggalSelesai}\n"
+                    . "📊 *Status Akhir :* Done\n\n"
+                    . "🛠️ *Tindakan :* {$validatedData['action_taken']}\n\n"
+                    . "Terima kasih telah melaporkan. 🙏\n"
+                    . "*⚠️Pesan ini dikirim otomatis oleh sistem, Mohon tidak membalas !.*";
+
+                WhatsappService::sendText([
+                    'to' => $reporterNumber,
+                    'message' => $message,
+                ]);
+
+                // Dispatch Job ke queue
+                // SendWhatsappNotification::dispatch($reporterNumber, $message);
+            }
+        }
+
         return back()->with([
             'status' => 'success',
-            'message' => 'Handling updated successfully along with attachments.',
+            'message' => 'Handling updated successfully.',
         ]);
     }
+
 
     public function destroy($id)
     {

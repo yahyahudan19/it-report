@@ -118,7 +118,7 @@ Details Handling
                   <div class="col-12">
                       <label class="form-label" for="attachmentInput">Notifications Reporter :</label>
                       <div class="form-check form-switch">
-                          <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_reporter" type="checkbox" role="switch" checked="">
+                          <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_reporter" type="checkbox" role="switch" {{ $handling->status === 'done' ? '' : 'checked' }}>
                           <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Reporter ?</label>
                       </div>
                       <div class="invalid-feedback">Please upload.</div>
