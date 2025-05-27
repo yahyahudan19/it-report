@@ -199,7 +199,7 @@
                                                             <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_staff" type="checkbox" role="switch" checked="">
                                                             <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Staff ?</label>
                                                         </div>
-                                                        <div class="invalid-feedback">Please upload.</div>
+                                                        <div class="invalid-feedback">Please switch.</div>
                                                     </div>
                                                      <div class="col-6">
                                                         <label class="form-label" for="attachmentInput">Notifications Reporter :</label>
@@ -207,7 +207,7 @@
                                                             <input class="form-check-input" id="flexSwitchCheckChecked" name="notification_reporter" type="checkbox" role="switch" checked="">
                                                             <label class="form-check-label" for="flexSwitchCheckChecked">Send Notification to Reporter ?</label>
                                                         </div>
-                                                        <div class="invalid-feedback">Please upload.</div>
+                                                        <div class="invalid-feedback">Please switch.</div>
                                                     </div>
                                                     <div class="col-12">
                                                         <button class="btn btn-primary" type="submit">Submit form</button>

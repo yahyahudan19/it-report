@@ -131,11 +131,35 @@
                                                         <div class="invalid-feedback">Please upload.</div>
                                                     </div>
                                                     
+                                                    <div class="col-md-12">
+                                                        <label class="form-label" for="otherStaff">Other Staff</label>
+                                                        <select id="otherStaff" name="otherStaff[]" class="form-control" multiple required>
+                                                            @foreach ($other_staff as $s)
+                                                            <option value="{{ $s->id }}">{{ $s->user->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-6" id="attachmentSwitchContainer" style="display: none;">
+                                                        <label class="form-label" for="attachmentAllStaffSwitch">Use Same Attachment for All Staff?</label>
+                                                        <div class="form-check form-switch">
+                                                            <input 
+                                                            class="form-check-input" 
+                                                            type="checkbox" 
+                                                            role="switch" 
+                                                            id="attachmentAllStaffSwitch" 
+                                                            name="attachment_all_staff" 
+                                                            value="1" 
+                                                            checked
+                                                            >
+                                                            <label class="form-check-label" for="attachmentAllStaffSwitch">
+                                                            Yes, use one attachment for all staff
+                                                            </label>
+                                                        </div>
+                                                    </div>
 
                                                     <div class="col-12">
-                                                        <button class="btn btn-primary" type="submit">Submit
-                                                            form</button>
-
+                                                        <button class="btn btn-primary" type="submit">Submit form</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -297,5 +321,35 @@
             });
         });
     </script>
+
+    <!-- script to initialize Choices.js -->
+    <script>
+        const otherStaffSelect = document.getElementById('otherStaff');
+        const switchContainer = document.getElementById('attachmentSwitchContainer');
+
+        function toggleSwitchVisibility() {
+            // Jika ada item yang terpilih (value length > 0), tampilkan switch, kalau kosong sembunyikan
+            if (otherStaffSelect.selectedOptions.length > 0) {
+            switchContainer.style.display = 'block';
+            } else {
+            switchContainer.style.display = 'none';
+            }
+        }
+
+        // Inisialisasi Choices.js
+        const choices = new Choices(otherStaffSelect, {
+            removeItemButton: true,
+            placeholderValue: 'Select staff...',
+            searchPlaceholderValue: 'Type to search...',
+        });
+
+        // Dengarkan event perubahan pilihan
+        otherStaffSelect.addEventListener('change', toggleSwitchVisibility);
+
+        // Jalankan sekali saat load untuk set default visibility
+        toggleSwitchVisibility();
+    </script>
+
+   
 
 @endsection

@@ -10,6 +10,7 @@ class DailyReport extends Model
     use HasUuids;
 
     protected $fillable = [
+        'staff_id',
         'task_id',
         'category_id',
         'task_description',
@@ -22,8 +23,7 @@ class DailyReport extends Model
 
     public function staff()
     {
-        return $this->belongsToMany(Staff::class, 'daily_report_staff', 'daily_report_id', 'staff_id')
-                    ->withTimestamps();
+        return $this->belongsTo(Staff::class);
     }
 
     public function tasks()

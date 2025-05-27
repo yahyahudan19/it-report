@@ -44,10 +44,8 @@ class Staff extends Model
 
      public function dailyReports()
     {
-        return $this->belongsToMany(DailyReport::class, 'daily_report_staff', 'staff_id', 'daily_report_id')
-                    ->withTimestamps();
+        return $this->hasMany(DailyReport::class);
     }
-
 
     public function reportHandlings()
     {

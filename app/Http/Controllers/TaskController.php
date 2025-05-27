@@ -16,6 +16,9 @@ class TaskController extends Controller
     public function index()
     {
         $staff = Staff::where('user_id', auth()->user()->id)->first();
+        $other_staff = Staff::where('department_id', $staff->department_id)
+            ->where('id', '!=', $staff->id)
+            ->get();
         $task = DailyReport::where('staff_id',$staff->id)->get();
         $work_task = WorkTask::where('staff_id', $staff->id)->get();
         $categories = WorkCategory::get();
@@ -27,7 +30,7 @@ class TaskController extends Controller
             ]);
         }
         // Logic to display a list of tasks
-        return view('apps.tasks.index', compact('task','staff','categories','work_task'));
+        return view('apps.tasks.index', compact('task','staff','categories','work_task','other_staff'));
     }
     public function index_hou()
     {
@@ -47,8 +50,6 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
-        // Validasi input
         $validated = $request->validate([
             'staff_id' => 'required|exists:staff,id',
             'task_id' => 'required',
@@ -60,14 +61,31 @@ class TaskController extends Controller
             'desc' => 'required|string',
             'issue' => 'required|string',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'otherStaff' => 'nullable|array',
+            'attachment_all_staff' => 'nullable|boolean',
         ]);
 
-        // Format task_date_start dan task_date_end ke format MySQL (Y-m-d H:i:s)
         $validated['task_date_start'] = Carbon::parse($validated['task_date_start'])->format('Y-m-d H:i:s');
         $validated['task_date_end'] = Carbon::parse($validated['task_date_end'])->format('Y-m-d H:i:s');
 
-        // Simpan data DailyReport
-        $dailyReport = DailyReport::create([
+        $attachment_all_staff = $request->boolean('attachment_all_staff', false);
+
+        // Simpan attachment dulu jika ada (hanya sekali, akan digunakan ulang)
+        $attachmentPath = null;
+        $attachmentMimeType = null;
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $date = Carbon::now()->format('Ymd');
+            $staffId = $validated['staff_id'];
+            $originalName = preg_replace('/\s+/', '-', $file->getClientOriginalName());
+            $filename = "{$date}_{$staffId}_{$originalName}";
+            $attachmentPath = $file->storeAs('daily_reports', $filename, 'public');
+            $attachmentMimeType = $file->getClientMimeType();
+        }
+
+        // Simpan DailyReport utama
+        $dailyReportMain = DailyReport::create([
             'staff_id' => $validated['staff_id'],
             'task_id' => $validated['task_id'],
             'start_time' => $validated['task_date_start'],
@@ -79,34 +97,51 @@ class TaskController extends Controller
             'issues' => $validated['issue'],
         ]);
 
-
-        // Proses attachment jika ada
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-
-            // Format nama file: tanggal sekarang + staff_id + original name (spasi jadi strip)
-            $date = Carbon::now()->format('Ymd');
-            $staffId = $validated['staff_id'];
-            $originalName = preg_replace('/\s+/', '-', $file->getClientOriginalName());
-            $filename = "{$date}_{$staffId}_{$originalName}";
-
-            // Simpan file di folder daily_reports
-            $filePath = $file->storeAs('daily_reports', $filename, 'public');
-
-            // Simpan data attachment polymorphic
+        // Simpan attachment untuk staff utama jika ada
+        if ($attachmentPath) {
             Attachment::create([
-                'attachmentable_id' => $dailyReport->id,
+                'attachmentable_id' => $dailyReportMain->id,
                 'attachmentable_type' => DailyReport::class,
-                'file_path' => $filePath,
-                'file_type' => $file->getClientMimeType(),
+                'file_path' => $attachmentPath,
+                'file_type' => $attachmentMimeType,
             ]);
+        }
+
+        // Jika ada otherStaff
+        if (!empty($validated['otherStaff']) && is_array($validated['otherStaff'])) {
+            foreach ($validated['otherStaff'] as $otherStaffId) {
+                $taskId = $attachment_all_staff ? $validated['task_id'] : null; // Kosongkan jika attachment unik tiap staff
+
+                // Simpan DailyReport untuk otherStaff
+                $dailyReportOther = DailyReport::create([
+                    'staff_id' => $otherStaffId,
+                    'start_time' => $validated['task_date_start'],
+                    'end_time' => $validated['task_date_end'],
+                    'status' => $validated['taskStatus'],
+                    'category_id' => $validated['category_id'],
+                    'quantity' => $validated['quantity'],
+                    'task_description' => $validated['desc'],
+                    'issues' => $validated['issue'],
+                ]);
+
+                // Jika attachment_all_staff = true, salin attachment yang sama untuk otherStaff
+                if ($attachment_all_staff && $attachmentPath) {
+                    Attachment::create([
+                        'attachmentable_id' => $dailyReportOther->id,
+                        'attachmentable_type' => DailyReport::class,
+                        'file_path' => $attachmentPath,
+                        'file_type' => $attachmentMimeType,
+                    ]);
+                }
+            }
         }
 
         return redirect()->back()->with([
             'status' => 'success',
-            'message' => 'Daily report has been successfully added.',
+            'message' => 'Daily report(s) has been successfully added.',
         ]);
     }
+
 
     public function getTasksByStaff($staffId)
     {
