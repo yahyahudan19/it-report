@@ -26,7 +26,7 @@ class DailyReport extends Model
         return $this->belongsTo(Staff::class);
     }
 
-    public function task()
+    public function tasks()
     {
         return $this->belongsTo(WorkTask::class);
     }

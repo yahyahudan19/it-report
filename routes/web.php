@@ -80,7 +80,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reporters/search', [UserControllers::class, 'searchReporters'])->name('reporters.search');
     Route::get('/locations/search', [DepartmentController::class, 'searchRoom'])->name('locations.search');
 
-    Route::get('/task', [TaskController::class,'index'])->name('task.index');
+    Route::get('/task/my', [TaskController::class,'index'])->name('task.index');
+    Route::get('/task/hou', [TaskController::class,'index_hou'])->name('task.hou');
+    Route::post('/task/store', [TaskController::class,'store'])->name('task.store');
+    Route::get('/task/task-by-staff/{staffId}', [TaskController::class, 'getTasksByStaff'])->name('task.getTasksByStaff');
+
 
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');

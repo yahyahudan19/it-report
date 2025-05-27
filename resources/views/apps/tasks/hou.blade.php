@@ -63,14 +63,21 @@
                                                     method="POST" action="{{ route('task.store') }}"
                                                     enctype="multipart/form-data">
                                                     @csrf
-                                                    <input type="hidden" name="staff_id" value="{{ $staff->id }}">
+                                                    <div class="col-md-12">
+                                                        <label class="form-label" for="staffSelect">Staff</label>
+                                                        <select class="form-select" id="staffSelect" name="staff_id" required>
+                                                            <option value="" disabled selected>Select Staff</option>
+                                                            @foreach ($staff as $s)
+                                                                <option value="{{ $s->id }}">{{ $s->user->name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <div class="invalid-feedback">Please select a Staff.</div>
+                                                    </div>
+
                                                     <div class="col-md-12 position-relative">
                                                         <label class="form-label" for="taskSelect">Task</label>
                                                         <select class="form-select" id="taskSelect" name="task_id" required>
                                                             <option value="" disabled selected>Select Task</option>
-                                                            @foreach ($work_task as $wt)
-                                                                <option value="{{ $wt->id }}">{{ $wt->title }}</option>
-                                                            @endforeach
                                                         </select>
                                                         <div class="invalid-feedback">Please select a Task.</div>
                                                     </div>
@@ -118,7 +125,7 @@
                                                         <div class="invalid-feedback">Please describe the Description.</div>
                                                     </div>
                                                     <div class="col-12">
-                                                        <label class="form-label" for="issueInput">Task</label>
+                                                        <label class="form-label" for="issueInput">Issue</label>
                                                         <textarea class="form-control" id="issueInput" name="issue" placeholder="Describe the issue" rows="3"
                                                             required></textarea>
                                                         <div class="invalid-feedback">Please describe the issue.</div>
@@ -153,10 +160,10 @@
                                         <tr>
                                             <th>No</th>
                                             <th>Date</th>
+                                            <th>Staff</th>
                                             <th>Description</th>
-                                            <th>Task</th>
+                                            <th>Issue</th>
                                             <th>Category</th>
-                                            <th>Quantity</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -168,10 +175,10 @@
                                                 <td>
                                                     {{ \Carbon\Carbon::parse($t->start_time)->locale('id')->translatedFormat('d F Y') }}
                                                 </td>
+                                                <td>{{ $t->staff->user->name }}</td>
                                                 <td>{{ $t->task_description}}</td>
                                                 <td>{{ $t->issues }}</td>
                                                 <td>{{ $t->category->name }}</td>
-                                                <td> {{ $t->quantity }}</td>
                                                 <td> {{ $t->status }}</td>
                                                 <td>
                                                     <ul class="action">
@@ -210,6 +217,29 @@
     <script src="{{ asset('dashboard/assets/js/flat-pickr/flatpickr.js') }}"></script>
     <script src="{{ asset('dashboard/assets/js/flat-pickr/custom-flatpickr.js') }}"></script>
 
+     <script>
+        document.getElementById('staffSelect').addEventListener('change', function () {
+            const staffId = this.value;
+            const taskSelect = document.getElementById('taskSelect');
+            taskSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+
+            fetch(`/task/task-by-staff/${staffId}`)
+                .then(response => response.json())
+                .then(data => {
+                    taskSelect.innerHTML = '<option value="" disabled selected>Select Task</option>';
+                    data.forEach(task => {
+                        const option = document.createElement('option');
+                        option.value = task.id;
+                        option.textContent = task.title;
+                        taskSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching task:', error);
+                    taskSelect.innerHTML = '<option value="" disabled selected>Error loading task</option>';
+                });
+        });
+    </script>
     <!-- Script to set the current date and time in the datetime-local input -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {

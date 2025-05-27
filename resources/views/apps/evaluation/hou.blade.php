@@ -58,6 +58,7 @@
                             <th>Achievement</th>
                             <th>Difference</th>
                             <th>Precentage</th>
+                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -83,6 +84,15 @@
                                         }
                                     @endphp
                                     <span class="badge bg-{{ $badge }}">{{ $percent }}%</span>
+                                </td>
+                                <td>
+                                  <ul class="action">
+                                        <li class="edit">
+                                            <a href="/evaluation/hou/{{ $wt->id }}">
+                                              <i class="fa-regular fa-eye"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </td>
                             </tr>
                         @endforeach

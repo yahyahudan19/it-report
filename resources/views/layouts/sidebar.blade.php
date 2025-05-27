@@ -57,6 +57,14 @@
                       <li><a href="/evaluation/hou">Evaluation</a></li>
                     </ul>
                   </li>
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/task/hou">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-task')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-task')}}"></use>
+                      </svg><span>Task</span></a>
+                    </li>
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title" href="#">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-learning')}}"></use>
@@ -99,7 +107,7 @@
                       <li><a href="/handling">Handling</a></li>
                     </ul>
                   </li>
-                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/task">
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/task/my">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-task')}}"></use>
                       </svg>

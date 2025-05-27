@@ -6,6 +6,7 @@ use App\Models\Attachment;
 use App\Models\ReportHandling;
 use App\Models\WorkTask;
 use App\Services\WhatsappService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,7 +71,7 @@ class HandlingController extends Controller
         // Proses attachment
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $date = \Carbon\Carbon::parse($handling->handling_time)->format('Ymd');
+                $date = Carbon::parse($handling->handling_time)->format('Ymd');
                 $staffId = auth()->user()->staff->id;
                 $originalName = preg_replace('/\s+/', '-', $file->getClientOriginalName());
                 $filename = "{$date}_{$staffId}_{$originalName}";
@@ -95,7 +96,7 @@ class HandlingController extends Controller
             $reporterNumber = $reporter->whatsapp_number;
 
             if ($reporterNumber) {
-                $tanggalSelesai = \Carbon\Carbon::parse($validatedData['handling_time'])
+                $tanggalSelesai = Carbon::parse($validatedData['handling_time'])
                     ->translatedFormat('d F Y H:i');
 
                 $message = "✅ *Laporan Anda Telah Diselesaikan!*\n\n"

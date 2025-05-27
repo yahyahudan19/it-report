@@ -536,15 +536,15 @@
     </script>
     <!-- Script to set the current date and time in the datetime-local input -->
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const input = document.getElementById('datetime-local1');
-         if (input && !input.value) {
-          const now = new Date();
-          const pad = n => n.toString().padStart(2, '0');
-          const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-          input.value = formatted;
-      }
-    });
-</script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.getElementById('datetime-local1');
+            if (input && !input.value) {
+            const now = new Date();
+            const pad = n => n.toString().padStart(2, '0');
+            const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            input.value = formatted;
+        }
+        });
+    </script>
 
 @endsection

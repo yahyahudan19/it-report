@@ -29,7 +29,7 @@ class WorkTask extends Model
 
     public function dailyReports()
     {
-        return $this->hasMany(DailyReport::class);
+        return $this->hasMany(DailyReport::class, 'task_id', 'id');
     }
 
     public function report_handling()
