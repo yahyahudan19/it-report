@@ -9,6 +9,7 @@ use App\Models\WorkCategory;
 use App\Models\WorkTask;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -46,7 +47,7 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         // Validasi input
         $validated = $request->validate([
             'staff_id' => 'required|exists:staff,id',
@@ -114,5 +115,30 @@ class TaskController extends Controller
             ->values();
 
         return response()->json($categories);
+    }
+
+    public function destroy($id)
+    {
+        // Cari data DailyReport berdasarkan id
+        $dailyReport = DailyReport::with('attachments')->findOrFail($id);
+
+        // Cari attachment yang terkait dengan report ini
+        $attachments = $dailyReport->attachments;
+
+        // Hapus file yang terkait dengan attachment (jika ada)
+        foreach ($attachments as $attachment) {
+            // Pastikan file ada di public storage
+            if ($attachment->file_path) {
+                // Hapus file dari public storage menggunakan disk 'public'
+                Storage::disk('public')->delete($attachment->file_path); // Menggunakan disk public
+            }
+
+            // Hapus data attachment dari database
+            $attachment->delete();
+        }
+        // Hapus data DailyReport
+        $dailyReport->delete();
+
+        return response()->json(['message' => 'Report and its attachments have been deleted successfully']);
     }
 }

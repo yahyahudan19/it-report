@@ -42,10 +42,12 @@ class Staff extends Model
         return $this->hasMany(WorkTask::class);
     }
 
-    public function dailyReports()
+     public function dailyReports()
     {
-        return $this->hasMany(DailyReport::class);
+        return $this->belongsToMany(DailyReport::class, 'daily_report_staff', 'staff_id', 'daily_report_id')
+                    ->withTimestamps();
     }
+
 
     public function reportHandlings()
     {
@@ -63,4 +65,6 @@ class Staff extends Model
                     ->withPivot('status', 'assigned_at', 'resolved_at') // Kolom tambahan di pivot table jika ada
                     ->withTimestamps(); // Jika kamu ingin timestamp di pivot table
     }
+    
+    
 }

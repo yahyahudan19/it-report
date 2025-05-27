@@ -172,7 +172,17 @@
                                                 <td>{{ $t->issues }}</td>
                                                 <td>{{ $t->category->name }}</td>
                                                 <td> {{ $t->quantity }}</td>
-                                                <td> {{ $t->status }}</td>
+                                                <td>
+                                                    @if ($t->status === 'done')
+                                                        <span class="badge bg-success">Done</span>
+                                                    @elseif ($t->status === 'progress')
+                                                        <span class="badge bg-warning text-dark">Progress</span>
+                                                    @elseif ($t->status === 'pending')
+                                                        <span class="badge bg-secondary">Pending</span>
+                                                    @else
+                                                        <span class="badge bg-light text-dark">{{ ucfirst($t->status) }}</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <ul class="action">
                                                         <li class="edit">
@@ -225,6 +235,66 @@
 
             setDateTime('datetime-local1');
             setDateTime('datetime-local2');
+        });
+    </script>
+
+    <!-- Script to handle the delete action -->
+    <script>
+        $(document).ready(function() {
+            // Klik tombol Delete
+            $(".delete").on("click", function() {
+                var taskId = $(this).data("id"); // Ambil ID report yang akan dihapus
+
+                // Menampilkan SweetAlert konfirmasi
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This report and its attachments will be deleted!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Tampilkan loading SweetAlert
+                        Swal.fire({
+                            title: 'Deleting...',
+                            text: 'Please wait while the report is being deleted.',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Lakukan AJAX request untuk menghapus report berdasarkan ID
+                        $.ajax({
+                            url: '/task/' + taskId,
+                            method: 'DELETE',
+                            data: {
+                                "_token": "{{ csrf_token() }}"
+                            },
+                            success: function(data) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    'The report and its attachments have been deleted.',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(error) {
+                                console.log(error);
+                                Swal.fire(
+                                    'Error!',
+                                    'Something went wrong. Please try again.',
+                                    'error'
+                                );
+                            }
+                        });
+                    }
+                });
+            });
         });
     </script>
 
