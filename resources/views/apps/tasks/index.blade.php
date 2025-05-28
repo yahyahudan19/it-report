@@ -54,7 +54,7 @@
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h4 class="modal-title" id="myExtraLargeModal">Add Reports</h4>
+                                                <h4 class="modal-title" id="myExtraLargeModal">Add Tasks</h4>
                                                 <button class="btn-close py-0" type="button" data-bs-dismiss="modal"
                                                     aria-label="Close"></button>
                                             </div>
@@ -133,7 +133,7 @@
                                                     
                                                     <div class="col-md-12">
                                                         <label class="form-label" for="otherStaff">Other Staff</label>
-                                                        <select id="otherStaff" name="otherStaff[]" class="form-control" multiple required>
+                                                        <select id="otherStaff" name="otherStaff[]" class="form-control" multiple>
                                                             @foreach ($other_staff as $s)
                                                             <option value="{{ $s->id }}">{{ $s->user->name }}</option>
                                                             @endforeach

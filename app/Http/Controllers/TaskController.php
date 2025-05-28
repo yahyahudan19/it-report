@@ -157,23 +157,30 @@ class TaskController extends Controller
         // Cari data DailyReport berdasarkan id
         $dailyReport = DailyReport::with('attachments')->findOrFail($id);
 
-        // Cari attachment yang terkait dengan report ini
+        // Dapatkan semua attachment yang terkait
         $attachments = $dailyReport->attachments;
 
-        // Hapus file yang terkait dengan attachment (jika ada)
         foreach ($attachments as $attachment) {
-            // Pastikan file ada di public storage
-            if ($attachment->file_path) {
-                // Hapus file dari public storage menggunakan disk 'public'
-                Storage::disk('public')->delete($attachment->file_path); // Menggunakan disk public
+            $filePath = $attachment->file_path;
+
+            // Hitung berapa banyak attachment lain yang memakai file yang sama (kecuali current)
+            $duplicateCount = Attachment::where('file_path', $filePath)
+                ->where('id', '!=', $attachment->id)
+                ->count();
+
+            // Jika tidak ada duplikat (dipakai hanya oleh 1 report ini), maka hapus file fisik
+            if ($duplicateCount === 0 && $filePath) {
+                Storage::disk('public')->delete($filePath);
             }
 
             // Hapus data attachment dari database
             $attachment->delete();
         }
+
         // Hapus data DailyReport
         $dailyReport->delete();
 
         return response()->json(['message' => 'Report and its attachments have been deleted successfully']);
     }
+
 }

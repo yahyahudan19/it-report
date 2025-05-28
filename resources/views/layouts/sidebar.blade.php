@@ -120,15 +120,16 @@
                       <h6 class="lan-10">Management</h6>
                     </div>
                   </li>
-                 @if (auth()->user()->role !== 'staff')
+                 {{-- @if (auth()->user()->role !== 'staff') --}}
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/category">
                       <svg class="stroke-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-file')}}"></use>
                       </svg>
                       <svg class="fill-icon">
                         <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-file')}}"></use>
-                      </svg><span>Category</span></a></li>
-                  @endif
+                      </svg><span>Category</span></a>
+                  </li>
+                  {{-- @endif --}}
                   @if (auth()->user()->role == 'sys_admin')
                   <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/users">
                       <svg class="stroke-icon">
