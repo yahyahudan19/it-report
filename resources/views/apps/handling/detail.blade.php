@@ -128,7 +128,7 @@ Details Handling
                       <div class="d-flex flex-row flex-wrap gap-3">
                           @if($handling->attachments && count($handling->attachments) > 0)
                             @foreach($handling->attachments as $attachment)
-                              <div class="attachment-file common-flex" style="min-width: 200px;">
+                              <div class="attachment-file common-flex" style="min-width: 250px;">
                                 <div class="common-flex align-items-center">
                                   @if ($attachment->file_type == 'image/png' || $attachment->file_type == 'image/jpeg')
                                     <img class="img-fluid" src="{{ asset('dashboard/assets/images/project/files/png.png')}}" alt="png">
@@ -136,12 +136,15 @@ Details Handling
                                     <img class="img-fluid" src="{{ asset('dashboard/assets/images/project/files/pdf.png')}}" alt="pdf">
                                   @endif
                                   <div class="d-block">
-                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" download target="_blank" class="mb-0">Attachment File</a>
+                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" download target="_blank" class="mb-0">Attachment File {{ $loop->iteration }}</a>
                                     <p class="c-o-light">{{ $attachment->size_kb }} KB</p>
                                   </div>
                                 </div>
-                                <a href="/">
-                                  <i class="fa-solid fa-trash-alt f-light"></i>
+                               <a href="javascript:void(0);" 
+                                    class="delete-attachment" 
+                                    data-id="{{ $attachment->id }}" 
+                                    data-url="{{ route('task.attachment.destroy', $attachment->id) }}">
+                                    <i class="fa-solid fa-trash-alt f-light"></i>
                                 </a>
                               </div>
                             @endforeach
@@ -202,6 +205,45 @@ Details Handling
       }
     });
 </script>
+
+<!-- JS for delete confirmation -->
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          document.querySelectorAll('.delete-attachment').forEach(function (button) {
+              button.addEventListener('click', function () {
+                  const url = this.dataset.url;
+
+                  Swal.fire({
+                      title: 'Are you sure you want to delete this file?',
+                      text: "This action cannot be undone!",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Yes, delete!',
+                      cancelButtonText: 'Cancel'
+                  }).then((result) => {
+                      if (result.isConfirmed) {
+                          $.ajax({
+                              url: url,
+                              type: 'DELETE',
+                              data: {
+                                  "_token": "{{ csrf_token() }}"
+                              },
+                              success: function(data) {
+                                  Swal.fire('Terhapus!', data.message, 'success')
+                                      .then(() => {
+                                          location.reload();
+                                      });
+                              },
+                              error: function() {
+                                  Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus.', 'error');
+                              }
+                          });
+                      }
+                  });
+              });
+          });
+      });
+  </script>
 
 
 @endsection

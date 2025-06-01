@@ -112,7 +112,7 @@ Details Reports
                           <p>No attachments available.</p>
                       @else
                           @foreach ($report->attachments as $attachment)
-                              <div class="attachment-file common-flex" style="min-width: 200px;">
+                              <div class="attachment-file common-flex" style="min-width: 250px;">
                                   <div class="common-flex align-items-center">
                                     @if ($attachment->file_type == 'image/png' || $attachment->file_type == 'image/jpeg')
                                       <img class="img-fluid" src="{{ asset('dashboard/assets/images/project/files/png.png')}}" alt="png">
@@ -120,12 +120,15 @@ Details Reports
                                       <img class="img-fluid" src="{{ asset('dashboard/assets/images/project/files/pdf.png')}}" alt="pdf">
                                     @endif
                                       <div class="d-block"> 
-                                          <p class="mb-0">Attachment File</p>
+                                         <a href="{{ asset('storage/' . $attachment->file_path) }}" download target="_blank" class="mb-0">Attachment File {{ $loop->iteration }}</a>
                                           <p class="c-o-light">{{ $attachment->size_kb }} KB</p>
                                       </div>
                                   </div>
-                                  <a href="{{ asset('storage/' . $attachment->file_path) }}" download target="_blank">
-                                      <i class="fa-solid fa-download f-light"></i>
+                                  <a href="javascript:void(0);" 
+                                      class="delete-attachment" 
+                                      data-id="{{ $attachment->id }}" 
+                                      data-url="{{ route('task.attachment.destroy', $attachment->id) }}">
+                                      <i class="fa-solid fa-trash-alt f-light"></i>
                                   </a>
                               </div>
                           @endforeach
@@ -251,57 +254,57 @@ Details Reports
 </script>
 
 <!-- Script to handle the reporter typeahead -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('reporterTypeahead');
-    const suggestions = document.getElementById('reporterSuggestions');
-    const reporterIdInput = document.getElementById('reporterId');
-    let debounceTimeout = null;
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('reporterTypeahead');
+        const suggestions = document.getElementById('reporterSuggestions');
+        const reporterIdInput = document.getElementById('reporterId');
+        let debounceTimeout = null;
 
-    input.addEventListener('input', function() {
-      const query = this.value.trim();
-      reporterIdInput.value = '';
-      if (debounceTimeout) clearTimeout(debounceTimeout);
-      if (query.length < 2) {
-        suggestions.style.display = 'none';
-        suggestions.innerHTML = '';
-        return;
-      }
-      debounceTimeout = setTimeout(() => {
-        fetch(`/reporters/search?q=${encodeURIComponent(query)}`)
-          .then(res => res.json())
-          .then(data => {
+        input.addEventListener('input', function() {
+          const query = this.value.trim();
+          reporterIdInput.value = '';
+          if (debounceTimeout) clearTimeout(debounceTimeout);
+          if (query.length < 2) {
+            suggestions.style.display = 'none';
             suggestions.innerHTML = '';
-            if (data.length === 0) {
-              suggestions.style.display = 'none';
-              return;
-            }
-            data.forEach(rep => {
-              const item = document.createElement('button');
-              item.type = 'button';
-              item.className =
-                'list-group-item list-group-item-action';
-              item.textContent = rep.user.name;
-              item.onclick = function() {
-                input.value = rep.user.name;
-                reporterIdInput.value = rep.id;
-                suggestions.style.display = 'none';
+            return;
+          }
+          debounceTimeout = setTimeout(() => {
+            fetch(`/reporters/search?q=${encodeURIComponent(query)}`)
+              .then(res => res.json())
+              .then(data => {
                 suggestions.innerHTML = '';
-              };
-              suggestions.appendChild(item);
-            });
-            suggestions.style.display = 'block';
-          });
-      }, 300);
-    });
+                if (data.length === 0) {
+                  suggestions.style.display = 'none';
+                  return;
+                }
+                data.forEach(rep => {
+                  const item = document.createElement('button');
+                  item.type = 'button';
+                  item.className =
+                    'list-group-item list-group-item-action';
+                  item.textContent = rep.user.name;
+                  item.onclick = function() {
+                    input.value = rep.user.name;
+                    reporterIdInput.value = rep.id;
+                    suggestions.style.display = 'none';
+                    suggestions.innerHTML = '';
+                  };
+                  suggestions.appendChild(item);
+                });
+                suggestions.style.display = 'block';
+              });
+          }, 300);
+        });
 
-    document.addEventListener('click', function(e) {
-      if (!input.contains(e.target) && !suggestions.contains(e.target)) {
-        suggestions.style.display = 'none';
-      }
-    });
-  });
-</script>
+        document.addEventListener('click', function(e) {
+          if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+          }
+        });
+      });
+    </script>
 <!-- Script to handle the location typeahead -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -355,41 +358,41 @@ Details Reports
         });
     </script>
 <!-- Script to handle the assign action -->
-<script>
-  $(document).ready(function() {
-    // Ketika tombol assign diklik
-    $("button[data-bs-target='.bd-assign-modal-lg']").on("click", function() {
-      // Ambil data dari tombol
-      var reportId = $(this).data("report-id");
-      var roomId = $(this).data("room-id");
+    <script>
+      $(document).ready(function() {
+        // Ketika tombol assign diklik
+        $("button[data-bs-target='.bd-assign-modal-lg']").on("click", function() {
+          // Ambil data dari tombol
+          var reportId = $(this).data("report-id");
+          var roomId = $(this).data("room-id");
 
-      // Set data ke dalam input hidden di dalam modal
-      $("#report_id").val(reportId);
-      $("#room_id").val(roomId);
-    });
-  });
+          // Set data ke dalam input hidden di dalam modal
+          $("#report_id").val(reportId);
+          $("#room_id").val(roomId);
+        });
+      });
 
-  const element = document.getElementById('assignmenStaff');
-  const choices = new Choices(element, {
-    removeItemButton: true,
-    placeholderValue: 'Select staff...',
-    searchPlaceholderValue: 'Type to search...',
-  });
+      const element = document.getElementById('assignmenStaff');
+      const choices = new Choices(element, {
+        removeItemButton: true,
+        placeholderValue: 'Select staff...',
+        searchPlaceholderValue: 'Type to search...',
+      });
 
-  const assignmenStatus = document.getElementById('assignmenStatus');
-  new Choices(assignmenStatus, {
-    searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
-    itemSelectText: '',
-    shouldSort: false,
-  });
+      const assignmenStatus = document.getElementById('assignmenStatus');
+      new Choices(assignmenStatus, {
+        searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+        itemSelectText: '',
+        shouldSort: false,
+      });
 
-  const assignmenCategory = document.getElementById('assignmenCategory');
-  new Choices(assignmenCategory, {
-      searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
-      itemSelectText: '',
-      shouldSort: false,
-  });
-</script>
+      const assignmenCategory = document.getElementById('assignmenCategory');
+      new Choices(assignmenCategory, {
+          searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+          itemSelectText: '',
+          shouldSort: false,
+      });
+    </script>
 
 <!-- Script to handle delete assign -->
 <script>
@@ -439,6 +442,44 @@ Details Reports
   });
 </script>
 
+<!-- JS for delete confirmation -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.delete-attachment').forEach(function (button) {
+          button.addEventListener('click', function () {
+              const url = this.dataset.url;
+
+              Swal.fire({
+                  title: 'Are you sure you want to delete this file?',
+                  text: "This action cannot be undone!",
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonText: 'Yes, delete!',
+                  cancelButtonText: 'Cancel'
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      $.ajax({
+                          url: url,
+                          type: 'DELETE',
+                          data: {
+                              "_token": "{{ csrf_token() }}"
+                          },
+                          success: function(data) {
+                              Swal.fire('Terhapus!', data.message, 'success')
+                                  .then(() => {
+                                      location.reload();
+                                  });
+                          },
+                          error: function() {
+                              Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus.', 'error');
+                          }
+                      });
+                  }
+              });
+          });
+      });
+  });
+</script>
 
 
 @endsection

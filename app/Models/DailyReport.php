@@ -28,7 +28,7 @@ class DailyReport extends Model
 
     public function tasks()
     {
-        return $this->belongsTo(WorkTask::class);
+        return $this->belongsTo(WorkTask::class, 'task_id');
     }
 
     public function category()

@@ -18,7 +18,7 @@
           <div class="left-header col-xxl-5 col-xl-6 col-lg-5 col-md-4 col-sm-3 p-0">
             <div class="notification-slider">
               <div class="d-flex h-100"> <img src="{{ asset('dashboard/assets/images/giftools.gif')}}" alt="gif">
-                <h6 class="mb-0 f-w-400"><span class="font-primary">Stay Positive! </span><span class="f-light"> Great things are coming your way.</span></h6><i class="icon-smile f-light"></i>
+                <h6 class="mb-0 f-w-400"><span class="font-primary">Stay Positive ! </span><span class="f-light">. Great things are coming your way.</span></h6><i class="icon-smile f-light"></i>
               </div>
               <div class="d-flex h-100"><img src="{{ asset('dashboard/assets/images/giftools.gif')}}" alt="gif">
                 <h6 class="mb-0 f-w-400"><span class="f-light">Keep pushing forward, success is near! </span></h6>

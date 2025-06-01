@@ -17,28 +17,40 @@ class EvaluationController extends Controller
             $work_tasks = collect();
         } else {
             $work_tasks = WorkTask::where('staff_id', $staff->id)
-                ->withCount(['report_handling as achievement' => function ($query) {
-                    $query->select(DB::raw("COALESCE(SUM(quantity), 0)"))
-                        ->whereColumn('report_handling.task_id', 'work_tasks.id'); 
-                }])
-                ->get();
+            ->with('staff')
+            ->get();
 
-            // Hitung shortfall dan percentage di collection
-            $work_tasks->transform(function ($task) {
-                // Hitung selisih antara pencapaian dan target
-                $difference = $task->achievement - $task->target_quantity;
+            // Ambil total quantity per task_id dari report_handling
+            $handlingTotals = DB::table('report_handling')
+            ->select('task_id', DB::raw('SUM(quantity) as total_handling'))
+            ->where('staff_id', $staff->id)
+            ->groupBy('task_id')
+            ->pluck('total_handling', 'task_id'); // collection keyed by task_id
 
-                // Shortfall: negatif jika kurang, positif jika pas atau lebih
-                $task->shortfall = $difference;
+            // Ambil total quantity per task_id dari daily_reports
+            $dailyTotals = DB::table('daily_reports')
+            ->select('task_id', DB::raw('SUM(quantity) as total_daily'))
+            ->where('staff_id', $staff->id)
+            ->groupBy('task_id')
+            ->pluck('total_daily', 'task_id'); // collection keyed by task_id
 
-                // Presentase: bebas, bisa lebih dari 100%
-                $task->percentage = $task->target_quantity > 0
-                    ? round(($task->achievement / $task->target_quantity) * 100, 2)
-                    : 0;
+            // Tambahkan property achievement ke tiap work_task hasil gabungan total
+            $work_tasks->transform(function ($task) use ($handlingTotals, $dailyTotals) {
+            $handlingQty = $handlingTotals->get($task->id, 0);
+            $dailyQty = $dailyTotals->get($task->id, 0);
 
-                return $task;
+            $achievement = $handlingQty + $dailyQty;
+
+            $difference = $achievement - $task->target_quantity;
+
+            $task->achievement = $achievement;
+            $task->shortfall = $difference;
+            $task->percentage = $task->target_quantity > 0
+                ? round(($achievement / $task->target_quantity) * 100, 2)
+                : 0;
+
+            return $task;
             });
-
         }
 
         return view('apps.evaluation.index', compact('work_tasks'));

@@ -183,4 +183,108 @@ class TaskController extends Controller
         return response()->json(['message' => 'Report and its attachments have been deleted successfully']);
     }
 
+    public function detail($id)
+    {
+        $task = DailyReport::with(['attachments', 'staff', 'category','tasks'])->findOrFail($id);
+        $task_asses = WorkTask::where('staff_id', auth()->user()->staff->id)->get();
+        $category = WorkCategory::all();
+
+        // Tambahkan ukuran file ke setiap attachment
+        foreach ($task->attachments as $attachment) {
+            if (Storage::disk('public')->exists($attachment->file_path)) {
+                $sizeBytes = Storage::disk('public')->size($attachment->file_path);
+                $attachment->size_kb = number_format($sizeBytes / 1024, 2);
+            } else {
+                $attachment->size_kb = 0;
+            }
+        }
+
+        if (!$task) {
+            return redirect()->back()->with([
+                'status' => 'error',
+                'message' => 'Daily report not found.',
+            ]);
+        }
+
+        return view('apps.tasks.detail', compact('task','task_asses','category'));
+    }
+
+    public function destroy_attachment($id)
+    {
+        $attachment = Attachment::findOrFail($id);
+
+        // Cek apakah file ini digunakan oleh attachment lain
+        $duplicateCount = Attachment::where('file_path', $attachment->file_path)
+            ->where('id', '!=', $id)
+            ->count();
+
+        // Hapus dari storage jika tidak dipakai oleh record lain
+        if ($duplicateCount === 0 && Storage::disk('public')->exists($attachment->file_path)) {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
+
+        // Hapus record dari database
+        $attachment->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Attachment berhasil dihapus.']);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // dd($request->all());
+        $validated = $request->validate([
+            'task_id' => 'required',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after_or_equal:task_date_start',
+            'status' => 'required|string|in:done,progress,pending',
+            'category_id' => 'required',
+            'quantity' => 'required|integer|min:1',
+            'desc' => 'required|string',
+            'issue' => 'required|string',
+            'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
+
+        $validated['start_time'] = Carbon::parse($validated['start_time'])->format('Y-m-d H:i:s');
+        $validated['end_time'] = Carbon::parse($validated['end_time'])->format('Y-m-d H:i:s');
+
+        // Cari DailyReport yang akan diupdate
+        $dailyReport = DailyReport::findOrFail($id);
+
+        // Update data DailyReport
+        $dailyReport->update([
+            'task_id' => $validated['task_id'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'status' => $validated['status'],
+            'category_id' => $validated['category_id'],
+            'quantity' => $validated['quantity'],
+            'task_description' => $validated['desc'],
+            'issues' => $validated['issue'],
+        ]);
+
+        // Jika ada attachment baru, simpan sebagai tambahan
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $date = Carbon::now()->format('Ymd');
+                $staffId = auth()->user()->staff->id;
+                $originalName = preg_replace('/\s+/', '-', $file->getClientOriginalName());
+                $filename = "{$date}_{$staffId}_{$originalName}";
+                $attachmentPath = $file->storeAs('daily_reports', $filename, 'public');
+                $attachmentMimeType = $file->getClientMimeType();
+
+                Attachment::create([
+                    'attachmentable_id' => $dailyReport->id,
+                    'attachmentable_type' => DailyReport::class,
+                    'file_path' => $attachmentPath,
+                    'file_type' => $attachmentMimeType,
+                ]);
+            }
+        }
+
+        return redirect()->back()->with([
+            'status' => 'success',
+            'message' => 'Daily report has been successfully updated.',
+        ]);
+    }
+
 }

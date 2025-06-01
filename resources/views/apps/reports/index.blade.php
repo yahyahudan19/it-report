@@ -36,6 +36,46 @@
         <!-- Container-fluid starts-->
         <div class="container-fluid datatable-init">
             <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3 custom-input">
+                        <div class="col-xl col-md-6"> 
+                            <label class="form-label" for="datetime-local">Start Date: </label>
+                            <div class="input-group flatpicker-calender">
+                            <input class="form-control" id="datetime-local" placeholder="dd/mm/yyyy">
+                            </div>
+                        </div>
+                        <div class="col-xl col-md-6"> 
+                            <label class="form-label" for="datetime-local3">End Date : </label>
+                            <div class="input-group flatpicker-calender">
+                            <input class="form-control" id="datetime-local3" placeholder="dd/mm/yyyy">
+                            </div>
+                        </div>
+                        <div class="col-xl col-md-6">
+                            <label class="form-label">Report Priority</label>
+                            <select class="form-select">
+                            <option value="all" selected>All</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                            </select>
+                        </div>
+                        <div class="col-xl col-md-6">
+                            <label class="form-label">Payment Methods</label>
+                            <select class="form-select">
+                            <option selected="">Paypal</option>
+                            <option value="1">COD</option>
+                            <option value="2">Bank transfer</option>
+                            <option value="3">Credit card</option>
+                            </select>
+                        </div>
+                            <div class="col d-flex justify-content-start align-items-center m-t-40"><a class="btn btn-primary f-w-500" href="#!">Filter</a></div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
                 <!-- Tabels  Starts-->
                 <div class="col-sm-12">
                     <div class="card">
@@ -46,9 +86,13 @@
                                     various work data efficiently throughout the year.</p>
                             </div>
                             <div class="card-header-right-icon">
-                                <button class="btn btn-success" type="button" data-bs-toggle="modal"
+                                <button class="btn btn-primary" type="button" data-bs-toggle="modal"
                                     data-bs-target=".bd-example-modal-lg"><i class="fa-solid fa-plus pe-2"></i>Add
-                                    Reports</button>
+                                    Reports
+                                </button>
+                                <button class="btn btn-success" type="button"><i class="fa-solid fa-file-excel pe-2"></i>
+                                    Export
+                                </button>
                                 <!-- Offcanvas Create Report Stats-->
                                 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
                                     aria-labelledby="myExtraLargeModal" aria-hidden="true">

@@ -210,7 +210,7 @@
                                                 <td>
                                                     <ul class="action">
                                                         <li class="edit">
-                                                            <a href="/task/detail/{{$t->id}}"><i class="fa-regular fa-pen-to-square"></i></a>
+                                                            <a href="/task/my/{{$t->id}}"><i class="fa-regular fa-pen-to-square"></i></a>
                                                         </li>
 
                                                         <li class="delete" data-id="{{ $t->id }}">

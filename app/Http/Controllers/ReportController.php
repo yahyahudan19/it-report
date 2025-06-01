@@ -280,6 +280,7 @@ class ReportController extends Controller
     }
 
     public function update(Request $request, $id){
+
         // Validasi input
         $validated = $request->validate([
             'reporter_id' => 'required|exists:staff,id',
@@ -303,33 +304,28 @@ class ReportController extends Controller
                 'issue' => $validated['issue'],
             ]);
 
-            // Jika ada file attachment baru, simpan dan hapus yang lama
-            if ($request->hasFile('attachment')) {
-                $file = $request->file('attachment');
+            // Jika ada file attachment baru,
+            if ($request->hasFile('attachments')) {
+                $files = $request->file('attachments');
 
-                // Hapus file lama jika ada
-                $existingAttachment = $report->attachments()->first();
-                if ($existingAttachment && Storage::disk('public')->exists($existingAttachment->file_path)) {
-                    Storage::disk('public')->delete($existingAttachment->file_path);
-                    $existingAttachment->delete();
+                foreach ((array) $files as $file) {
+                    // Format nama file baru
+                    $date = Carbon::now()->format('y-m-d');
+                    $reporterId = $validated['reporter_id'];
+                    $reportUuid = $report->id;
+                    $fileName = "{$date}_report_{$reporterId}_{$reportUuid}_".uniqid().".{$file->getClientOriginalExtension()}";
+
+                    // Simpan file baru
+                    $filePath = $file->storeAs('reports', $fileName, 'public');
+
+                    // Simpan data attachment baru
+                    Attachment::create([
+                        'attachmentable_id' => $report->id,
+                        'attachmentable_type' => 'App\Models\Report',
+                        'file_path' => $filePath,
+                        'file_type' => $file->getClientMimeType(),
+                    ]);
                 }
-
-                // Format nama file baru
-                $date = Carbon::now()->format('y-m-d');
-                $reporterId = $validated['reporter_id'];
-                $reportUuid = $report->id;
-                $fileName = "{$date}_report_{$reporterId}_{$reportUuid}.{$file->getClientOriginalExtension()}";
-
-                // Simpan file baru
-                $filePath = $file->storeAs('reports', $fileName, 'public');
-
-                // Simpan data attachment baru
-                Attachment::create([
-                    'attachmentable_id' => $report->id,
-                    'attachmentable_type' => 'App\Models\Report',
-                    'file_path' => $filePath,
-                    'file_type' => $file->getClientMimeType(),
-                ]);
             }
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with([
