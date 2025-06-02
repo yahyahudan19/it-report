@@ -33,7 +33,7 @@ class DailyReport extends Model
 
     public function category()
     {
-        return $this->belongsTo(WorkCategory::class);
+        return $this->belongsTo(WorkCategory::class, 'category_id');
     }
 
     public function attachments()

@@ -38,42 +38,40 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
-                    <div class="card-body">
-                        <div class="row g-3 custom-input">
-                        <div class="col-xl col-md-6"> 
-                            <label class="form-label" for="datetime-local">Start Date: </label>
-                            <div class="input-group flatpicker-calender">
-                            <input class="form-control" id="datetime-local" placeholder="dd/mm/yyyy">
+                        <form method="GET" action="{{ route('report.index') }}">
+                            <div class="card-body">
+                                <div class="row g-3 custom-input">
+                                <div class="col-xl col-md-6"> 
+                                    <label class="form-label" for="datetime-local">Start Date: </label>
+                                    <div class="input-group flatpicker-calender">
+                                    <input class="form-control" id="datetime-local" placeholder="dd/mm/yyyy" name="start_date" value="{{ request('start_date') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-xl col-md-6"> 
+                                    <label class="form-label" for="datetime-local3">End Date : </label>
+                                    <div class="input-group flatpicker-calender">
+                                    <input class="form-control" id="datetime-local3" placeholder="dd/mm/yyyy" name="end_date" value="{{ request('end_date') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-xl col-md-6">
+                                    <label class="form-label">Report Priority</label>
+                                    <select class="form-select" name="priority" id="prioritySelect">
+                                        <option value="all" {{ request('priority') == 'all' ? 'selected' : '' }}>All</option>
+                                        <option value="critical" {{ request('priority') == 'critical' ? 'selected' : '' }}>Critical</option>
+                                        <option value="high" {{ request('priority') == 'high' ? 'selected' : '' }}>High</option>
+                                        <option value="medium" {{ request('priority') == 'medium' ? 'selected' : '' }}>Medium</option>
+                                        <option value="low" {{ request('priority') == 'low' ? 'selected' : '' }}>Low</option>
+                                    </select>
+                                </div>
+                                    <div class="col-xl col-md-2 d-flex align-items-end">
+                                        <button class="btn btn-primary f-w-500 w-100" type="submit">Filter</button>
+                                    </div>
+                                    <div class="col-xl col-md-2 d-flex align-items-end">
+                                        <a href="{{ route('report.index') }}" class="btn btn-secondary f-w-500 w-100">Clear</a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-xl col-md-6"> 
-                            <label class="form-label" for="datetime-local3">End Date : </label>
-                            <div class="input-group flatpicker-calender">
-                            <input class="form-control" id="datetime-local3" placeholder="dd/mm/yyyy">
-                            </div>
-                        </div>
-                        <div class="col-xl col-md-6">
-                            <label class="form-label">Report Priority</label>
-                            <select class="form-select">
-                            <option value="all" selected>All</option>
-                            <option value="critical">Critical</option>
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
-                            <option value="low">Low</option>
-                            </select>
-                        </div>
-                        <div class="col-xl col-md-6">
-                            <label class="form-label">Payment Methods</label>
-                            <select class="form-select">
-                            <option selected="">Paypal</option>
-                            <option value="1">COD</option>
-                            <option value="2">Bank transfer</option>
-                            <option value="3">Credit card</option>
-                            </select>
-                        </div>
-                            <div class="col d-flex justify-content-start align-items-center m-t-40"><a class="btn btn-primary f-w-500" href="#!">Filter</a></div>
-                        </div>
-                    </div>
+                        </form>
                     </div>
                 </div>
                 <!-- Tabels  Starts-->
@@ -220,7 +218,7 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-4">
                                                         <label class="form-label" for="assignmenStatus">Status</label>
                                                         <select id="assignmenStatus" name="assignmenStatus" class="form-control" required>
                                                             <option value="accept">accept</option>
@@ -228,13 +226,19 @@
                                                             <option value="pending">pending</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-4">
                                                         <label class="form-label" for="assignmenCategory">Category</label>
                                                         <select id="assignmenCategory" name="assignmenCategory" class="form-control" required>
                                                         <option value="" disabled selected>Select Category</option>
                                                         @foreach ($category as $cat)
                                                             <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                                                         @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="form-label" for="assignmenSubCategory">Sub Category</label>
+                                                        <select id="assignmenSubCategory" name="assignmenSubCategory" class="form-control" required>
+                                                            <option value="" disabled selected>Select Sub Category</option>
                                                         </select>
                                                     </div>
                                                      <div class="col-6">
@@ -571,11 +575,57 @@
             shouldSort: false,
         });
 
+        // const assignmenCategory = document.getElementById('assignmenCategory');
+        // new Choices(assignmenCategory, {
+        //     searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+        //     itemSelectText: '',
+        //     shouldSort: false,
+        // });
+        // const assignmenSubCategory = document.getElementById('assignmenSubCategory');
+        // new Choices(assignmenSubCategory, {
+        //     searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+        //     itemSelectText: '',
+        //     shouldSort: false,
+        // });
+    </script>
+    <!-- Script to handle dynamic sub-category selection based on category -->
+    <script>
+        const allSubCategories = @json($subCategory); // ambil semua sub kategori dari controller
+
         const assignmenCategory = document.getElementById('assignmenCategory');
-        new Choices(assignmenCategory, {
-            searchEnabled: false, // Nonaktifkan pencarian jika sedikit opsi
+        const assignmenSubCategory = document.getElementById('assignmenSubCategory');
+
+        const categoryChoices = new Choices(assignmenCategory, {
+            searchEnabled: true,
             itemSelectText: '',
             shouldSort: false,
+        });
+
+        const subCategoryChoices = new Choices(assignmenSubCategory, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false,
+        });
+
+        assignmenCategory.addEventListener('change', function () {
+            const selectedCategoryId = this.value;
+
+            // Filter sub kategori berdasarkan main_category_id
+            const filtered = allSubCategories.filter(sub => sub.main_category_id === selectedCategoryId);
+
+            // Kosongkan dan isi ulang pilihan sub category
+            subCategoryChoices.clearStore();
+            subCategoryChoices.setChoices(
+                filtered.map(sub => ({
+                    value: sub.id,
+                    label: sub.name,
+                    selected: false,
+                    disabled: false
+                })),
+                'value',
+                'label',
+                false
+            );
         });
     </script>
     <!-- Script to set the current date and time in the datetime-local input -->

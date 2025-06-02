@@ -6,6 +6,7 @@ use App\Models\Attachment;
 use App\Models\DailyReport;
 use App\Models\Staff;
 use App\Models\WorkCategory;
+use App\Models\WorkMainCategory;
 use App\Models\WorkTask;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,37 +14,61 @@ use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $staff = Staff::where('user_id', auth()->user()->id)->first();
-        $other_staff = Staff::where('department_id', $staff->department_id)
-            ->where('id', '!=', $staff->id)
-            ->get();
-        $task = DailyReport::where('staff_id',$staff->id)->get();
-        $work_task = WorkTask::where('staff_id', $staff->id)->get();
-        $categories = WorkCategory::get();
 
         if (!$staff) {
             return redirect()->back()->with([
                 'status' => 'error',
-                'message' => 'Sorry, you are not a staff member',
+                'message' => 'Sorry, you are not a staff or head member',
             ]);
         }
-        // Logic to display a list of tasks
-        return view('apps.tasks.index', compact('task','staff','categories','work_task','other_staff'));
+
+        $other_staff = Staff::where('department_id', $staff->department_id)
+            ->where('id', '!=', $staff->id)
+            ->get();
+
+        // Default: hari ini
+        $query = DailyReport::where('staff_id', $staff->id);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $status = $request->input('status');
+
+        if ($startDate && $endDate) {
+            // Asumsikan input format: Y-m-d atau Y-m-d H:i
+            $start = Carbon::parse($startDate)->startOfDay();
+            $end = Carbon::parse($endDate)->endOfDay();
+            $query->whereBetween('end_time', [$start, $end]);
+        } else {
+            // Jika tidak ada filter, tampilkan hari ini saja
+            $query->whereDate('end_time', Carbon::today());
+        }
+
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $task = $query->get();
+        $work_task = WorkTask::where('staff_id', $staff->id)->get();
+        $category = WorkMainCategory::all(); // kategori utama
+        $subCategory = WorkCategory::all();  // sub kategori
+
+        return view('apps.tasks.index', compact('task','staff','work_task','other_staff', 'category', 'subCategory'));
     }
     public function index_hou()
     {
+        if (auth()->user()->staff == NULL) {
+            return redirect()->back()->with([
+                'status' => 'error',
+                'message' => 'Sorry, you are not a staff or head member',
+            ]);
+        }
         $task = DailyReport::with('category')->get();
         $staff = Staff::where('department_id', auth()->user()->staff->department_id)->get();
         $categories = WorkCategory::get();
 
-        if (!$staff) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Sorry, you are not a staff member',
-            ]);
-        }
         // Logic to display a list of tasks
         return view('apps.tasks.hou', compact('task','staff','categories'));
     }
@@ -56,7 +81,7 @@ class TaskController extends Controller
             'task_date_start' => 'required|date',
             'task_date_end' => 'required|date|after_or_equal:task_date_start',
             'taskStatus' => 'required|string|in:done,progress,pending',
-            'category_id' => 'required',
+            'assignmenSubCategory' => 'required',
             'quantity' => 'required|integer|min:1',
             'desc' => 'required|string',
             'issue' => 'required|string',
@@ -91,7 +116,7 @@ class TaskController extends Controller
             'start_time' => $validated['task_date_start'],
             'end_time' => $validated['task_date_end'],
             'status' => $validated['taskStatus'],
-            'category_id' => $validated['category_id'],
+            'category_id' => $validated['assignmenSubCategory'],
             'quantity' => $validated['quantity'],
             'task_description' => $validated['desc'],
             'issues' => $validated['issue'],
@@ -187,7 +212,8 @@ class TaskController extends Controller
     {
         $task = DailyReport::with(['attachments', 'staff', 'category','tasks'])->findOrFail($id);
         $task_asses = WorkTask::where('staff_id', auth()->user()->staff->id)->get();
-        $category = WorkCategory::all();
+        $category = WorkMainCategory::all(); // kategori utama
+        $subCategory = WorkCategory::all();  // sub kategori
 
         // Tambahkan ukuran file ke setiap attachment
         foreach ($task->attachments as $attachment) {
@@ -202,11 +228,12 @@ class TaskController extends Controller
         if (!$task) {
             return redirect()->back()->with([
                 'status' => 'error',
-                'message' => 'Daily report not found.',
+                'message' => 'Daily Task not found.',
             ]);
         }
 
-        return view('apps.tasks.detail', compact('task','task_asses','category'));
+
+        return view('apps.tasks.detail', compact('task','task_asses','category','subCategory'));	
     }
 
     public function destroy_attachment($id)

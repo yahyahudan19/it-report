@@ -36,6 +36,43 @@
         <!-- Container-fluid starts-->
         <div class="container-fluid datatable-init">
             <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <form method="GET" action="{{ route('task.index') }}">
+                            <div class="card-body">
+                                <div class="row g-3 custom-input">
+                                <div class="col-xl col-md-6"> 
+                                    <label class="form-label" for="datetime-local">Start Date: </label>
+                                    <div class="input-group flatpicker-calender">
+                                    <input class="form-control" id="datetime-local" placeholder="dd/mm/yyyy" name="start_date" value="{{ request('start_date') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-xl col-md-6"> 
+                                    <label class="form-label" for="datetime-local3">End Date : </label>
+                                    <div class="input-group flatpicker-calender">
+                                    <input class="form-control" id="datetime-local3" placeholder="dd/mm/yyyy" name="end_date" value="{{ request('end_date') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-xl col-md-6">
+                                    <label class="form-label">Task Status</label>
+                                    <select class="form-select" name="status" id="statusSelect">
+                                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All</option>
+                                        <option value="progress" {{ request('status') == 'progress' ? 'selected' : '' }}>Progress</option>
+                                        <option value="done" {{ request('status') == 'done' ? 'selected' : '' }}>Done</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    </select>
+                                </div>
+                                    <div class="col-xl col-md-2 d-flex align-items-end">
+                                        <button class="btn btn-primary f-w-500 w-100" type="submit">Filter</button>
+                                    </div>
+                                    <div class="col-xl col-md-2 d-flex align-items-end">
+                                        <a href="{{ route('task.index') }}" class="btn btn-secondary f-w-500 w-100">Clear</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <!-- Tabels  Starts-->
                 <div class="col-sm-12">
                     <div class="card">
@@ -87,7 +124,7 @@
                                                             name="task_date_end" required>
                                                         <div class="invalid-feedback">Please provide a valid date and time.</div>
                                                     </div>
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-6">
                                                         <label class="form-label" for="taskStatus">Status</label>
                                                         <select class="form-select" id="taskStatus" name="taskStatus" class="form-control" required>
                                                             <option value="done">Done</option>
@@ -95,7 +132,7 @@
                                                             <option value="pending">Pending</option>
                                                         </select>
                                                     </div>
-                                                     <div class="col-md-4 position-relative">
+                                                     {{-- <div class="col-md-4 position-relative">
                                                         <label class="form-label" for="categorySelect">Category</label>
                                                         <select class="form-select" id="categorySelect" name="category_id" required>
                                                             <option value="" disabled selected>Select Category</option>
@@ -104,12 +141,27 @@
                                                             @endforeach
                                                         </select>
                                                         <div class="invalid-feedback">Please select a Category.</div>
-                                                    </div>
-                                                     <div class="col-md-4">
+                                                    </div> --}}
+                                                     <div class="col-md-6">
                                                         <label class="form-label" for="quantityInput">Quantity</label>
                                                         <input class="form-control" id="quantityInput" type="number" value="1"
                                                             name="quantity" min="1" required>
                                                         <div class="invalid-feedback">Please provide a valid quantity.</div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" for="assignmenCategory">Category</label>
+                                                        <select id="assignmenCategory" name="assignmenCategory" class="form-control" required>
+                                                        <option value="" disabled selected>Select Category</option>
+                                                        @foreach ($category as $cat)
+                                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                                        @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="form-label" for="assignmenSubCategory">Sub Category</label>
+                                                        <select id="assignmenSubCategory" name="assignmenSubCategory" class="form-control" required>
+                                                            <option value="" disabled selected>Select Sub Category</option>
+                                                        </select>
                                                     </div>
                                                     <div class="col-12">
                                                         <label class="form-label" for="descInput">Description</label>
@@ -348,6 +400,47 @@
 
         // Jalankan sekali saat load untuk set default visibility
         toggleSwitchVisibility();
+    </script>
+
+    <!-- Script to handle dynamic sub-category selection based on category -->
+    <script>
+        const allSubCategories = @json($subCategory); // ambil semua sub kategori dari controller
+
+        const assignmenCategory = document.getElementById('assignmenCategory');
+        const assignmenSubCategory = document.getElementById('assignmenSubCategory');
+
+        const categoryChoices = new Choices(assignmenCategory, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false,
+        });
+
+        const subCategoryChoices = new Choices(assignmenSubCategory, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false,
+        });
+
+        assignmenCategory.addEventListener('change', function () {
+            const selectedCategoryId = this.value;
+
+            // Filter sub kategori berdasarkan main_category_id
+            const filtered = allSubCategories.filter(sub => sub.main_category_id === selectedCategoryId);
+
+            // Kosongkan dan isi ulang pilihan sub category
+            subCategoryChoices.clearStore();
+            subCategoryChoices.setChoices(
+                filtered.map(sub => ({
+                    value: sub.id,
+                    label: sub.name,
+                    selected: false,
+                    disabled: false
+                })),
+                'value',
+                'label',
+                false
+            );
+        });
     </script>
 
    

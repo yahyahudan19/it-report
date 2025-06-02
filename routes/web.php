@@ -73,9 +73,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/category', [CategoryController::class,'index'])->name('category.index');
     Route::post('/category/store', [CategoryController::class,'store'])->name('category.store');
+    Route::post('/subcategory/store', [CategoryController::class,'substore'])->name('subcategory.store');
     Route::get('/category/{id}', [CategoryController::class, 'show'])->name('category.show');
+    Route::get('/subcategory/{id}', [CategoryController::class, 'show_sub'])->name('subcategory.show');
     Route::put('/category/{id}', [CategoryController::class, 'update'])->name('category.update');
+    Route::put('/subcategory/{id}', [CategoryController::class, 'update_sub'])->name('subcategory.update');
     Route::delete('/category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
+    Route::delete('/subcategory/{id}', [CategoryController::class, 'destroy_main'])->name('subcategory.destroy');
 
     Route::get('/reporters/search', [UserControllers::class, 'searchReporters'])->name('reporters.search');
     Route::get('/locations/search', [DepartmentController::class, 'searchRoom'])->name('locations.search');

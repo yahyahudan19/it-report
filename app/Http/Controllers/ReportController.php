@@ -8,6 +8,7 @@ use App\Models\ReportHandling;
 use App\Models\Room;
 use App\Models\Staff;
 use App\Models\WorkCategory;
+use App\Models\WorkMainCategory;
 use App\Services\DeepSeekService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,14 +18,33 @@ use App\Services\WhatsappService;
 
 class ReportController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $report = Report::with('staff')->get();
+        $query = Report::with('staff');
+
+        // Filter berdasarkan tanggal jika ada input
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } else {
+            // Jika tidak ada filter, default tampilkan data hari ini
+            $query->whereDate('created_at', Carbon::today());
+        }
+
+        // Filter berdasarkan prioritas jika tidak "all"
+        if ($request->filled('priority') && $request->priority !== 'all') {
+            $query->where('priority', $request->priority);
+        }
+
+        $report = $query->get();
         $reporter = Staff::all();
         $location = Room::all();
-        $category = WorkCategory::all();
-        return view('apps.reports.index',compact('report','reporter','location','category'));	
-        
+        $category = WorkMainCategory::all(); // kategori utama
+        $subCategory = WorkCategory::all();  // sub kategori
+
+        return view('apps.reports.index', compact('report', 'reporter', 'location', 'category', 'subCategory'));
     }
 
     public function store(Request $request)
@@ -163,7 +183,7 @@ class ReportController extends Controller
         $validated = $request->validate([
             'assignmenStaff' => 'required|array',
             'assignmenStatus' => 'required|string|in:accept,handling,done,pending',
-            'assignmenCategory' => 'required',
+            'assignmenSubCategory' => 'required',
             'report_id' => 'required|exists:reports,id',
             'room_id' => 'required|exists:rooms,id',
             'notification_staff' => 'nullable|string|in:on,off',
@@ -172,7 +192,7 @@ class ReportController extends Controller
 
         $reportId = $validated['report_id'];
         $status = $validated['assignmenStatus'];
-        $category = $validated['assignmenCategory'];
+        $category = $validated['assignmenSubCategory'];
         $roomId = $validated['room_id'];
         $responseTime = now();
 

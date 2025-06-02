@@ -77,6 +77,14 @@
                       <li><a href="/staff/hou">Staff</a></li>
                     </ul>
                   </li>
+                  <li class="sidebar-list"><i class="fa-solid fa-thumbtack"></i><a class="sidebar-link sidebar-title link-nav" href="/mutu/hou">
+                      <svg class="stroke-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#stroke-knowledgebase')}}"></use>
+                      </svg>
+                      <svg class="fill-icon">
+                        <use href="{{ asset('dashboard/assets/svg/icon-sprite.svg#fill-knowledgebase')}}"></use>
+                      </svg><span>MUTU</span></a>
+                    </li>
                   @endif
                   <li class="sidebar-main-title">
                     <div>

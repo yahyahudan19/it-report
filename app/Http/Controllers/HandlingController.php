@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Attachment;
 use App\Models\ReportHandling;
+use App\Models\WorkCategory;
+use App\Models\WorkMainCategory;
 use App\Models\WorkTask;
 use App\Services\WhatsappService;
 use Carbon\Carbon;
@@ -13,24 +15,44 @@ use Illuminate\Support\Facades\Storage;
 
 class HandlingController extends Controller
 {
-    public function index(){
-
+    public function index(Request $request)
+    {
         if (!auth()->user()->staff) {
             return back()->with([
-            'status' => 'error',
-            'message' => 'You are not a staff member and cannot access this feature.',
+                'status' => 'error',
+                'message' => 'You are not a staff member and cannot access this feature.',
             ]);
         }
 
-        $handling = ReportHandling::whereHas('report', function ($query) {
+        $query = ReportHandling::whereHas('report', function ($query) {
             $query->where('staff_id', auth()->user()->staff->id);
-        })->get();
-        // dd($handling); // Uncomment for debugging if needed  
+        });
+
+        // Filter tanggal jika tersedia
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        } else {
+            // Default: hari ini
+            $query->whereDate('created_at', Carbon::today());
+        }
+
+        // Filter prioritas jika tersedia dan tidak 'all'
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status); // Pastikan kolom status ada di tabel ReportHandling
+        }
+
+        $handling = $query->get();
+
         return view('apps.handling.index', compact('handling'));
     }
     public function detail($id){
-        $handling = ReportHandling::with('report')->findOrFail($id);
+        $handling = ReportHandling::with('report','subCategory')->findOrFail($id);
         $task = WorkTask::where('staff_id', auth()->user()->staff->id)->get();
+        $category = WorkMainCategory::all(); // kategori utama
+        $subCategory = WorkCategory::all();  // sub kategori
         // Tambahkan ukuran file ke setiap attachment
         foreach ($handling->attachments as $attachment) {
             if (Storage::disk('public')->exists($attachment->file_path)) {
@@ -41,7 +63,7 @@ class HandlingController extends Controller
             }
         }
 
-        return view('apps.handling.detail', compact('handling', 'task'));	
+        return view('apps.handling.detail', compact('handling', 'task', 'category', 'subCategory'));	
     }
 
     public function update(Request $request, $id)
@@ -52,6 +74,7 @@ class HandlingController extends Controller
             'handling_time' => 'required|date',
             'action_taken' => 'required|string',
             'task_id' => 'required|string',
+            'category_id' => 'required|string',
             'quantity' => 'required|string',
             'attachments' => 'nullable|array',
             'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',
@@ -62,6 +85,7 @@ class HandlingController extends Controller
 
         // Update data
         $handling->status = $validatedData['status'];
+        $handling->category_id = $validatedData['category_id'];
         $handling->task_id = $validatedData['task_id'];
         $handling->handling_time = $validatedData['handling_time'];
         $handling->quantity = $validatedData['quantity'];

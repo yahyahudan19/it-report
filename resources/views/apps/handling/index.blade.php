@@ -36,6 +36,44 @@
         <!-- Container-fluid starts-->
         <div class="container-fluid datatable-init">
             <div class="row">
+                 <div class="col-12">
+                    <div class="card">
+                        <form method="GET" action="{{ route('handling.index') }}">
+                            <div class="card-body">
+                                <div class="row g-3 custom-input">
+                                <div class="col-xl col-md-6"> 
+                                    <label class="form-label" for="datetime-local">Start Date: </label>
+                                    <div class="input-group flatpicker-calender">
+                                    <input class="form-control" id="datetime-local" placeholder="dd/mm/yyyy" name="start_date" value="{{ request('start_date') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-xl col-md-6"> 
+                                    <label class="form-label" for="datetime-local3">End Date : </label>
+                                    <div class="input-group flatpicker-calender">
+                                    <input class="form-control" id="datetime-local3" placeholder="dd/mm/yyyy" name="end_date" value="{{ request('end_date') }}" required>
+                                    </div>
+                                </div>
+                               <div class="col-xl col-md-6">
+                                    <label class="form-label">Status Handling</label>
+                                    <select class="form-select" name="status" id="statusSelect">
+                                        <option value="all" {{ request('priority') == 'all' ? 'selected' : '' }}>All</option>
+                                        <option value="accept" {{ request('status') == 'accept' ? 'selected' : '' }}>Accept</option>
+                                        <option value="handling" {{ request('status') == 'handling' ? 'selected' : '' }}>Handling</option>
+                                        <option value="done" {{ request('status') == 'done' ? 'selected' : '' }}>Done</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    </select>
+                                </div>
+                                    <div class="col-xl col-md-2 d-flex align-items-end">
+                                        <button class="btn btn-primary f-w-500 w-100" type="submit">Filter</button>
+                                    </div>
+                                    <div class="col-xl col-md-2 d-flex align-items-end">
+                                        <a href="{{ route('handling.index') }}" class="btn btn-secondary f-w-500 w-100">Clear</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <!-- Tabels  Starts-->
                 <div class="col-sm-12">
                     <div class="card">

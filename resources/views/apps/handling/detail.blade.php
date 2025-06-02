@@ -74,6 +74,7 @@ Details Handling
                     <select class="form-select" id="projectType" name="status" required>
                       <option disabled value="">Choose...</option>
                       <option value="handling" @selected($handling->status === 'handling')>Handling</option>
+                      <option value="accept" @selected($handling->status === 'accept')>Accept</option>
                       <option value="done" @selected($handling->status === 'done')>Done</option>
                       <option value="pending" @selected($handling->status === 'pending')>Pending</option>
                     </select>
@@ -103,6 +104,32 @@ Details Handling
                       @endforeach
                     </select>
                     <div class="invalid-feedback">Please select a task assessment.</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label" for="assignmenCategory">Category</label>
+                    <select id="assignmenCategory" name="assignmenCategory" class="form-control" required>
+                        <option value="" disabled {{ !$handling->subCategory ? 'selected' : '' }}>Select Category</option>
+                        @foreach ($category as $cat)
+                            <option value="{{ $cat->id }}"
+                                {{ optional($handling->subCategory)->main_category_id == $cat->id ? 'selected' : '' }}>
+                                {{ $cat->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="assignmenSubCategory">Sub Category</label>
+                    <select id="assignmenSubCategory" name="category_id" class="form-control" data-selected="{{ $handling->category_id }}" required>
+                        <option value="" disabled {{ !$handling->category_id ? 'selected' : '' }}>Select Sub Category</option>
+                        @foreach ($subCategory as $sub)
+                            @if (optional($handling->subCategory)->main_category_id == $sub->main_category_id)
+                                <option value="{{ $sub->id }}" {{ $handling->category_id == $sub->id ? 'selected' : '' }}>
+                                    {{ $sub->name }}
+                                </option>
+                            @endif
+                        @endforeach
+                    </select>
                   </div>
 
                   <div class="col-12">
@@ -244,6 +271,67 @@ Details Handling
           });
       });
   </script>
+    <!-- Script to handle dynamic sub-category selection based on category -->
+    <script>
+        const allSubCategories = @json($subCategory); // ambil semua sub kategori dari controller
+
+        const assignmenCategory = document.getElementById('assignmenCategory');
+        const assignmenSubCategory = document.getElementById('assignmenSubCategory');
+
+        const categoryChoices = new Choices(assignmenCategory, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false,
+        });
+
+        const subCategoryChoices = new Choices(assignmenSubCategory, {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false,
+        });
+
+        assignmenCategory.addEventListener('change', function () {
+            const selectedCategoryId = this.value;
+
+            // Filter sub kategori berdasarkan main_category_id
+            const filtered = allSubCategories.filter(sub => sub.main_category_id === selectedCategoryId);
+
+            // Kosongkan dan isi ulang pilihan sub category
+            subCategoryChoices.clearStore();
+            subCategoryChoices.setChoices(
+                filtered.map(sub => ({
+                    value: sub.id,
+                    label: sub.name,
+                    selected: false,
+                    disabled: false
+                })),
+                'value',
+                'label',
+                false
+            );
+        });
+
+        // Saat halaman pertama kali dimuat, langsung tampilkan sub category yang sesuai
+        window.addEventListener('DOMContentLoaded', () => {
+            const selectedCategoryId = assignmenCategory.value;
+            const selectedSubCategoryId = assignmenSubCategory.getAttribute('data-selected');
+
+            const filtered = allSubCategories.filter(sub => sub.main_category_id === selectedCategoryId);
+
+            subCategoryChoices.clearStore();
+            subCategoryChoices.setChoices(
+                filtered.map(sub => ({
+                    value: sub.id,
+                    label: sub.name,
+                    selected: sub.id == selectedSubCategoryId,
+                    disabled: false
+                })),
+                'value',
+                'label',
+                false
+            );
+        });
+    </script>
 
 
 @endsection
