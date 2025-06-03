@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\HandlingController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserControllers;
@@ -83,6 +84,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/reporters/search', [UserControllers::class, 'searchReporters'])->name('reporters.search');
     Route::get('/locations/search', [DepartmentController::class, 'searchRoom'])->name('locations.search');
+    Route::get('/location', [LocationController::class, 'index'])->name('locations.index');
+    Route::post('/building', [LocationController::class, 'store_building'])->name('building.store');
+    Route::post('/floor', [LocationController::class, 'store_floor'])->name('floor.store');
+    Route::post('/room', [LocationController::class, 'store_room'])->name('room.store');
+    Route::get('/get-floors/{building_id}', [LocationController::class, 'getFloors'])->name('floors.get');
+    Route::get('/api/rooms', [LocationController::class, 'api_rooms'])->name('api.roooms');
+    
 
     Route::get('/task/my', [TaskController::class,'index'])->name('task.index');
     Route::get('/task/hou', [TaskController::class,'index_hou'])->name('task.hou');
@@ -92,8 +100,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/task/my/{id}', [TaskController::class, 'detail'])->name('task.detail');
     Route::get('/task/task-by-staff/{staffId}', [TaskController::class, 'getTasksByStaff'])->name('task.getTasksByStaff');
     Route::delete('/task/attachment/{id}', [TaskController::class, 'destroy_attachment'])->name('task.attachment.destroy');
-
-
 
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');
